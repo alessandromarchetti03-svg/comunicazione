@@ -44,7 +44,7 @@ window.SITE = {
      formUrl: l'indirizzo "action" del modulo Brevo (inizia con https://...sibforms.com/serve/...).
      Finché è vuoto il pulsante mostra "In arrivo". */
   gift: {
-    formUrl: "",
+    formUrl: "https://3f4b877b.sibforms.com/serve/MUIFAIrTLQRgOPS2G3kkKHjT27_MpJg4aAHy_G7iccCIg2fKyqfsFeDuy9Pfgsvi2767xIXZKcGqpVJiQZ5B2y-dVhbsSQdFwm_VbjDmeT_vhWPf1KtoTw9EKSu8oIXSAPzxcRS-LW52tGBuqw_wHLetrUhWPKRzv_Z77M0xxkhtiC9koZdpzH_lS2cu_3rMdKc72QKVkM1itOIYLA==",
     title: "7 giorni per ritrovare la parola",
     subtitle: "Sette esercizi da pochi minuti per sentire, già da questa settimana, la differenza nella tua voce e nella tua presenza.",
     points: ["Un esercizio al giorno: voce, dizione, presenza, gestione della tensione", "Tratto da “Ritrova la Parola”, con spazio per annotare i progressi", "PDF gratuito, da leggere su telefono o stampare"],
