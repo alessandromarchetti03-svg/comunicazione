@@ -233,3 +233,33 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.1; le
 .gallery .yt-consent { padding: 14px 16px; gap: 8px; font-size: 12.5px; }
 .gallery .yt-consent label { font-size: 12px; }
 .gallery .yt-consent .btn { padding: 8px 12px; font-size: 12.5px; }
+
+/* ---------- Omaggio ---------- */
+.gift { background: var(--surface); padding: 104px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.gift-grid { display: grid; grid-template-columns: 300px 1fr; gap: 72px; align-items: center; }
+.gift h2 { font-size: clamp(42px, 6vw, 80px); }
+.gift .lead { margin: 18px 0 0; }
+.gift-cover { width: 100%; max-width: 300px; aspect-ratio: 210 / 297; border-radius: 6px; overflow: hidden; position: relative; rotate: -3deg; box-shadow: 22px 26px 50px -20px color-mix(in srgb, var(--blue) 55%, transparent); }
+.gift-cover img { width: 100%; height: 100%; object-fit: cover; }
+.gift-fallback { position: absolute; inset: 0; background: var(--blue); color: #fff; padding: 26px 22px; display: flex; flex-direction: column; justify-content: space-between; }
+.gift-fallback::before { content: "PDF"; align-self: flex-start; font: 600 12px var(--mono); letter-spacing: .1em; background: var(--coral); padding: 5px 9px; border-radius: 5px; }
+.gift-fallback .t { font-family: var(--display); text-transform: uppercase; font-size: 34px; line-height: 1.08; }
+.gift-fallback .a { font: 500 11px var(--mono); letter-spacing: .06em; opacity: .85; }
+.gift-points { list-style: none; padding: 0; margin: 26px 0 30px; display: grid; gap: 10px; }
+.gift-points li { display: flex; gap: 12px; align-items: baseline; color: var(--ink-2); }
+.gift-points li::before { content: "→"; color: var(--coral); font-weight: 700; }
+.gift-form { display: grid; gap: 14px; max-width: 560px; }
+.gift-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.gift-row input[type=email] { flex: 1 1 240px; min-width: 0; font: 500 16px var(--sans); padding: 15px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); }
+.gift-row input[type=email]:focus { outline: 2px solid var(--blue); outline-offset: 1px; border-color: transparent; }
+.gift-row .btn { background: var(--coral); border-color: var(--coral); }
+.gift-row .btn:disabled { background: var(--line); border-color: var(--line); color: var(--ink-3); cursor: default; transform: none; }
+.gift-row .btn:disabled::after { content: none; }
+.gift-consent { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: var(--ink-2); line-height: 1.45; }
+.gift-consent input { margin-top: 3px; width: 17px; height: 17px; accent-color: var(--blue); flex: none; }
+.gift-msg { margin: 0; font-size: 15px; min-height: 1px; }
+.gift-msg.err { color: #c2321b; }
+.gift-msg.ok { color: var(--ink); background: var(--bg); border-left: 4px solid var(--blue); padding: 14px 18px; border-radius: 0 10px 10px 0; }
+.hp { position: absolute; left: -5000px; width: 1px; height: 1px; opacity: 0; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 820px) { .gift { padding: 72px 0; } .gift-grid { grid-template-columns: 1fr; gap: 40px; } .gift-cover { max-width: 200px; } }

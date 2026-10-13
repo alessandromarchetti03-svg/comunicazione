@@ -130,6 +130,34 @@
       : `<div class="empty">Il primo articolo è in arrivo.</div>`;
   }
 
+  /* Omaggio + iscrizione Brevo (doppia conferma via email) */
+  const G = S.gift;
+  const gf = $("#gift-form");
+  if (G && gf) {
+    $("#gift-title").textContent = G.title || "";
+    $("#gift-sub").textContent = G.subtitle || "";
+    $("#gift-points").innerHTML = (G.points || []).map((x) => `<li>${esc(x)}</li>`).join("");
+    $("#gift-cover").innerHTML = G.cover
+      ? `<img src="${base}${esc(G.cover)}" alt="Copertina: ${esc(G.title)}">`
+      : `<div class="gift-fallback"><span class="t">${esc(G.title)}</span><span class="a">PDF gratuito · Alessandro Marchetti</span></div>`;
+    const btn = $("#gift-btn"), msg = $("#gift-msg");
+    if (!G.formUrl) { btn.textContent = "In arrivo"; btn.disabled = true; }
+    else gf.action = G.formUrl;
+    gf.addEventListener("submit", (e) => {
+      const em = $("#gift-email"), ok = $("#gift-ok");
+      msg.className = "gift-msg";
+      if (!G.formUrl) { e.preventDefault(); return; }
+      if (!em.value || !em.checkValidity()) { e.preventDefault(); msg.textContent = "Inserisci un indirizzo email valido."; msg.classList.add("err"); em.focus(); return; }
+      if (!ok.checked) { e.preventDefault(); msg.textContent = "Per ricevere l’omaggio spunta la casella del consenso."; msg.classList.add("err"); return; }
+      btn.disabled = true; btn.textContent = "Invio…";
+      setTimeout(() => {
+        gf.querySelector(".gift-row").hidden = true; gf.querySelector(".gift-consent").hidden = true;
+        msg.innerHTML = "<strong>Quasi fatto!</strong> Ti ho inviato un’email: apri il link di conferma e riceverai subito il PDF. Se non la trovi, controlla Spam o Promozioni.";
+        msg.classList.add("ok");
+      }, 900);
+    });
+  }
+
   /* Contatti */
   document.querySelectorAll("[data-email]").forEach((a) => { a.href = "mailto:" + S.email; if (!a.textContent.trim()) a.textContent = S.email; });
   [["instagram", "[data-ig]"], ["linkedin", "[data-li]"]].forEach(([k, sel]) =>

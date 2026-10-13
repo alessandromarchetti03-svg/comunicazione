@@ -24,6 +24,7 @@
     <nav class="nav" id="nav">
       <a href="#chi-sono">Chi sono</a>
       <a href="#libri">Libri</a>
+      <a href="#omaggio">Omaggio</a>
       <a href="#video">Video</a>
       <a href="blog.html">Blog</a>
       <a href="#contatti">Contatti</a>
@@ -102,6 +103,34 @@
         <p class="lead" style="max-width:38ch">Ogni capitolo si chiude con un esercizio da due minuti. In formato cartaceo su Amazon.</p>
       </div>
       <div class="book-list" id="book-list"></div>
+    </div>
+  </section>
+
+  <!-- OMAGGIO -->
+  <section class="gift" id="omaggio">
+    <div class="wrap gift-grid">
+      <div class="gift-cover reveal" id="gift-cover"></div>
+      <div class="gift-body reveal">
+        <p class="eyebrow">Omaggio gratuito</p>
+        <h2 id="gift-title">La guida gratuita</h2>
+        <p class="lead" id="gift-sub"></p>
+        <ul class="gift-points" id="gift-points"></ul>
+        <form class="gift-form" id="gift-form" method="POST" target="gift-sink" novalidate>
+          <div class="gift-row">
+            <label class="sr" for="gift-email">La tua email</label>
+            <input id="gift-email" name="EMAIL" type="email" autocomplete="email" placeholder="La tua email" required>
+            <input type="text" name="email_address_check" value="" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
+            <input type="hidden" name="locale" value="it">
+            <button class="btn" type="submit" id="gift-btn">Ricevi il PDF</button>
+          </div>
+          <label class="gift-consent" for="gift-ok">
+            <input id="gift-ok" name="OPT_IN" type="checkbox" value="1" required>
+            <span>Voglio ricevere l’omaggio e le email di Alessandro Marchetti. Ho letto l’<a href="privacy.html#newsletter">informativa privacy</a>. Posso disiscrivermi quando voglio.</span>
+          </label>
+          <p class="gift-msg" id="gift-msg" role="status" aria-live="polite"></p>
+        </form>
+        <iframe name="gift-sink" title="invio modulo" hidden></iframe>
+      </div>
     </div>
   </section>
 

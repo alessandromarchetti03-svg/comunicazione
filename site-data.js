@@ -34,11 +34,22 @@ window.SITE = {
       title: "La Tua Voce, La Tua Presenza",
       subtitle: "Un percorso pratico per comunicare con sicurezza, dal vivo e in pubblico",
       cover: "cover-la-tua-voce-la-tua-presenza.jpg",
-      amazon: "",
+      amazon: "https://amzn.eu/d/07qjkZVK",
       blurb: "Il seguito dedicato a voce, tono e presenza: i cinque fondamentali vocali, il corpo come telecomando, il coraggio di esporsi e un percorso personalizzato di 12 settimane con schede di lavoro.",
       tags: ["Voce", "Presenza scenica", "12 settimane"]
     }
   ],
+
+  /* OMAGGIO + MAILING LIST (Brevo)
+     formUrl: l'indirizzo "action" del modulo Brevo (inizia con https://...sibforms.com/serve/...).
+     Finché è vuoto il pulsante mostra "In arrivo". */
+  gift: {
+    formUrl: "",
+    title: "7 giorni per ritrovare la parola",
+    subtitle: "Sette esercizi da pochi minuti per sentire, già da questa settimana, la differenza nella tua voce e nella tua presenza.",
+    points: ["Un esercizio al giorno: voce, dizione, presenza, gestione della tensione", "Tratto da “Ritrova la Parola”, con spazio per annotare i progressi", "PDF gratuito, da leggere su telefono o stampare"],
+    cover: "omaggio-copertina.jpg"
+  },
 
   /* Social e contatti (lascia "" per nasconderli) */
   email: "info@alessandromarchetti.net",
