@@ -62,11 +62,14 @@ window.SITE = {
    Ogni articolo è un file in /blog/ (es. blog/la-voce-si-allena.html)
    ============================================================ */
 window.POSTS = [
-  {
-    slug: "la-voce-si-allena",
-    title: "La voce si allena: tre esercizi da due minuti",
-    date: "2026-10-13",
-    excerpt: "La voce che usi oggi non è un dato di natura: è il risultato di migliaia di ripetizioni involontarie. Ecco da dove iniziare a cambiarla.",
-    category: "Voce"
-  }
+  {"slug": "la-voce-si-allena", "title": "La voce si allena: tre esercizi da due minuti", "date": "2026-10-13", "excerpt": "La voce che usi oggi non è un dato di natura: è il risultato di migliaia di ripetizioni involontarie. Ecco da dove iniziare a cambiarla.", "category": "Voce"},
+  {"slug": "visivo-auditivo-cinestesico", "title": "Visivo, auditivo, cinestesico: parla la lingua dell’altro", "date": "2026-10-06", "excerpt": "Lo stesso messaggio, detto nel modo sbagliato alla persona sbagliata, sembra un messaggio diverso. Come riconoscere il canale dell’altro dalle parole che usa.", "category": "Relazioni"},
+  {"slug": "fatti-e-storie-ascolto-attivo", "title": "Fatti e storie: l’ascolto che evita i conflitti", "date": "2026-09-29", "excerpt": "“Non mi ha risposto da due giorni” è un fatto. “Quindi non gli interessa” è una storia. Ascoltare bene inizia dal saperle distinguere.", "category": "Ascolto"},
+  {"slug": "volevo-invece-mi-ha-insegnato", "title": "Volevo, invece, mi ha insegnato: raccontare storie che restano", "date": "2026-09-22", "excerpt": "I fatti si dimenticano, le storie no. Una struttura in tre frasi e i cinque errori che rendono un racconto distante invece che coinvolgente.", "category": "Storytelling"},
+  {"slug": "nervosismo-o-eccitazione", "title": "Nervosismo o eccitazione? Il corpo non vede la differenza", "date": "2026-09-15", "excerpt": "Il nodo allo stomaco prima di parlare non sparisce con l’esperienza. Cambia il modo in cui lo gestisci, su tre livelli: mente, corpo ed emozione.", "category": "Ansia"},
+  {"slug": "rispondere-sotto-pressione", "title": "Rispondere sotto pressione: Tre-Due-Uno e PREP", "date": "2026-09-08", "excerpt": "Davanti a una domanda inattesa non serve avere la risposta pronta: serve una struttura pronta. Due schemi semplici per smettere di girare in tondo.", "category": "Struttura"},
+  {"slug": "il-reset-sulla-soglia", "title": "Il reset sulla soglia: cinque secondi prima di entrare", "date": "2026-09-01", "excerpt": "Il corpo parla per primo. I primi secondi di un incontro funzionano come la prima frase di un discorso che non hai ancora iniziato. Ecco come non lasciarli al caso.", "category": "Presenza"},
+  {"slug": "caro-o-carro-dizione", "title": "Caro o carro? Dizione e accento, cosa correggere davvero", "date": "2026-08-25", "excerpt": "Non serve eliminare l’accento. Serve togliere le ambiguità che costringono chi ascolta a uno sforzo in più. Doppie, vocali aperte e chiuse e tre esercizi pratici.", "category": "Dizione"},
+  {"slug": "registra-e-rivedi", "title": "Registra e rivedi: il metodo per vederti da fuori", "date": "2026-08-18", "excerpt": "Non puoi correggere ciò che non vedi. Un video improvvisato, 24 ore di pausa e tre revisioni separate: ecco come costruire la tua lista personale di cose da migliorare.", "category": "Metodo"},
+  {"slug": "le-tre-immagini-della-comunicazione", "title": "Le tre immagini della comunicazione", "date": "2026-08-11", "excerpt": "Ogni volta che parli trasmetti su tre canali insieme: voce, corpo e parole. Chi ti ascolta li unisce in un giudizio che si forma in pochi decimi di secondo.", "category": "Consapevolezza"}
 ];

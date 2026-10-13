@@ -152,7 +152,7 @@
       btn.disabled = true; btn.textContent = "Invio…";
       setTimeout(() => {
         gf.querySelector(".gift-row").hidden = true; gf.querySelector(".gift-consent").hidden = true;
-        msg.innerHTML = "<strong>Quasi fatto!</strong> Ti ho inviato un’email: apri il link di conferma e riceverai subito il PDF. Se non la trovi, controlla Spam o Promozioni.";
+        msg.innerHTML = "<strong>Quasi fatto!</strong> Ti ho inviato un’email: apri il link di conferma e il PDF ti arriverà per email. Se non la trovi, controlla Spam o Promozioni.";
         msg.classList.add("ok");
       }, 900);
     });
