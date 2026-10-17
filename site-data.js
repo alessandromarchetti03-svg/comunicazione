@@ -37,6 +37,14 @@ window.SITE = {
       amazon: "https://amzn.eu/d/07qjkZVK",
       blurb: "Il seguito dedicato a voce, tono e presenza: i cinque fondamentali vocali, il corpo come telecomando, il coraggio di esporsi e un percorso personalizzato di 12 settimane con schede di lavoro.",
       tags: ["Voce", "Presenza scenica", "12 settimane"]
+    },
+    {
+      title: "Il Tuo Corpo, Il Tuo Centro",
+      subtitle: "Respiro, postura e consapevolezza del corpo per sentirti stabile, dentro e fuori",
+      cover: "cover-il-tuo-corpo-il-tuo-centro.jpg",
+      amazon: "https://amzn.eu/d/05aV8G8U",
+      blurb: "Prima delle parole parla il corpo. Un percorso pratico per ritrovare il tuo centro attraverso il movimento, il respiro e la postura, e portare quella stabilità in ogni momento della giornata.",
+      tags: ["Corpo", "Respiro", "Benessere"]
     }
   ],
 
