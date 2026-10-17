@@ -73,7 +73,7 @@
     books.innerHTML = S.books.map((b) => `
       <article class="book reveal">
         <div class="cover">
-          <div class="cover-fallback"><span class="orn">❧</span><span class="t">${esc(b.title)}</span><span class="a">Alessandro Marchetti</span></div>
+          <div class="cover-fallback"><span class="orn">❧</span><span class="t">${esc(b.title).replace(/, /g, ",<br>")}</span><span class="a">Alessandro Marchetti</span></div>
           <img src="${base}${esc(b.cover)}" alt="Copertina di ${esc(b.title)}" loading="lazy" onerror="this.remove()">
         </div>
         <div>
