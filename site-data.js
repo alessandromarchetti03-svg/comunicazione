@@ -45,6 +45,14 @@ window.SITE = {
       amazon: "https://amzn.eu/d/05aV8G8U",
       blurb: "Prima delle parole parla il corpo. Un percorso pratico per ritrovare il tuo centro attraverso il movimento, il respiro e la postura, e portare quella stabilità in ogni momento della giornata.",
       tags: ["Corpo", "Respiro", "Benessere"]
+    },
+    {
+      title: "I Tuoi Soldi, Il Tuo Benessere",
+      subtitle: "Un rapporto più sereno e consapevole con il denaro, per vivere con più libertà",
+      cover: "cover-i-tuoi-soldi-il-tuo-benessere.jpg",
+      amazon: "https://amzn.eu/d/0gNQ3bgV",
+      blurb: "Il denaro non è solo una questione di numeri: è abitudini, scelte ed emozioni. Un percorso pratico per mettere ordine nelle tue finanze, ridurre l'ansia legata ai soldi e costruire una base solida per il tuo benessere.",
+      tags: ["Denaro", "Abitudini", "Benessere"]
     }
   ],
 
