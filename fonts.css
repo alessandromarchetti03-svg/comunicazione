@@ -1,0 +1,6 @@
+/* Caratteri salvati sul sito (nessuna richiesta a Google) — Inter / Inter Display, SIL Open Font License */
+@font-face { font-family: "Inter"; src: url("/inter-400.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/inter-500.woff") format("woff"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/inter-600.woff") format("woff"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/inter-700.woff") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter Display"; src: url("/inter-display-900.woff") format("woff"); font-weight: 900; font-style: normal; font-display: swap; }

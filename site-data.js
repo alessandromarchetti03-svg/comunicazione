@@ -20,18 +20,35 @@ window.SITE = {
   ],
 
   /* Libri: incolla il link Amazon quando è disponibile.
-     Se amazon è "", il pulsante mostra "In arrivo". */
+     Se amazon è "", il pulsante mostra "In arrivo su Amazon".
+     color = colore della copertina, ink = colore del testo in copertina,
+     featured: true = mostrato in grande in cima (la novità). */
   books: [
     {
+      title: "La noia, il vero motore della vita",
+      area: "Creatività",
+      featured: true,
+      color: "#fe6a00", ink: "#ffffff", dot: "#ffc93c",
+      subtitle: "Perché annoiarsi, in modo consapevole, è la scintilla da cui nascono idee e cambiamenti",
+      cover: "cover-la-noia-il-vero-motore-della-vita.jpg",
+      amazon: "",
+      blurb: "Riempiamo ogni minuto vuoto con uno schermo, e poi ci chiediamo perché le idee non arrivano. In questo libro scopri come la noia, vissuta in modo consapevole, diventa il terreno in cui nascono la creatività, le decisioni importanti e le svolte, anche sul lavoro. Con esercizi pratici per ritrovare lo spazio vuoto che la mente usa per inventare.",
+      tags: ["Creatività", "Noia consapevole", "Lavoro"]
+    },
+    {
       title: "Ritrova la Parola",
+      area: "Comunicazione",
+      color: "#ff5a3c", ink: "#ffffff", dot: "#ffc93c",
       subtitle: "Una guida pratica per imparare ad esprimerti in maniera efficace e carismatica in tutte le occasioni",
       cover: "cover-ritrova-la-parola.jpg",
       amazon: "https://amzn.eu/d/0aDT5QVA",
-      blurb: "Quindici capitoli su voce, corpo, mente sotto pressione, ascolto e guida della conversazione — più un percorso pratico di 90 giorni, in trenta blocchi da tre giorni, con spazio per le tue annotazioni.",
-      tags: ["Comunicazione", "Public speaking", "Percorso 90 giorni"]
+      blurb: "Quindici capitoli su voce, corpo, mente sotto pressione, ascolto e guida della conversazione, più un percorso pratico di 90 giorni in trenta blocchi da tre giorni, con spazio per le tue annotazioni.",
+      tags: ["Comunicazione", "Public speaking", "90 giorni"]
     },
     {
       title: "La Tua Voce, La Tua Presenza",
+      area: "Voce e presenza",
+      color: "#2b44ff", ink: "#ffffff", dot: "#ff5a3c",
       subtitle: "Un percorso pratico per comunicare con sicurezza, dal vivo e in pubblico",
       cover: "cover-la-tua-voce-la-tua-presenza.jpg",
       amazon: "https://amzn.eu/d/07qjkZVK",
@@ -40,19 +57,23 @@ window.SITE = {
     },
     {
       title: "Il Tuo Corpo, Il Tuo Centro",
-      subtitle: "Respiro, postura e consapevolezza del corpo per sentirti stabile, dentro e fuori",
+      area: "Corpo",
+      color: "#249561", ink: "#ffffff", dot: "#ffc93c",
+      subtitle: "Respiro, postura e movimento per sentirti stabile, dentro e fuori",
       cover: "cover-il-tuo-corpo-il-tuo-centro.jpg",
       amazon: "https://amzn.eu/d/05aV8G8U",
-      blurb: "Prima delle parole parla il corpo. Un percorso pratico per ritrovare il tuo centro attraverso il movimento, il respiro e la postura, e portare quella stabilità in ogni momento della giornata.",
-      tags: ["Corpo", "Respiro", "Benessere"]
+      blurb: "Prima delle parole parla il corpo. Un percorso pratico di 20 giorni per riconnetterti con il tuo corpo attraverso respiro, postura e movimento, seguendo la mappa dei chakra, e portare quella stabilità in ogni momento della giornata.",
+      tags: ["Corpo", "Respiro", "20 giorni"]
     },
     {
       title: "I Tuoi Soldi, Il Tuo Benessere",
-      subtitle: "Un rapporto più sereno e consapevole con il denaro, per vivere con più libertà",
+      area: "Denaro",
+      color: "#fed500", ink: "#111111", dot: "#111111",
+      subtitle: "Una guida pratica di finanza personale, per gestire il denaro senza ansia",
       cover: "cover-i-tuoi-soldi-il-tuo-benessere.jpg",
       amazon: "https://amzn.eu/d/0gNQ3bgV",
-      blurb: "Il denaro non è solo una questione di numeri: è abitudini, scelte ed emozioni. Un percorso pratico per mettere ordine nelle tue finanze, ridurre l'ansia legata ai soldi e costruire una base solida per il tuo benessere.",
-      tags: ["Denaro", "Abitudini", "Benessere"]
+      blurb: "Niente promesse di ricchezza facile. Dodici capitoli concreti per capire dove vanno i tuoi soldi, costruire abitudini che reggono nel tempo e togliere al denaro il peso dello stress quotidiano.",
+      tags: ["Finanza personale", "Abitudini", "12 capitoli"]
     }
   ],
 

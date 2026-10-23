@@ -64,20 +64,24 @@
   const intro = $("#intro-video");
   if (intro) {
     if (S.introVideoId) intro.replaceWith(videoFrame(S.introVideoId, "Guarda la presentazione"));
-    else intro.innerHTML = `<div class="video-placeholder"><div><strong>Il video di presentazione arriva presto</strong>Nel frattempo, scopri i video sul canale.</div></div>`;
+    else intro.classList.add("soon"), intro.innerHTML = `<div class="video-placeholder"><div><strong>Il video di presentazione arriva presto</strong>Nel frattempo, scopri i video sul canale.</div></div>`;
   }
 
   /* Libri */
+  const bookVars = (b) => `--bk:${esc(b.color || "#ff5a3c")};--bk-ink:${esc(b.ink || "#fff")};--bk-dot:${esc(b.dot || "#ffc93c")}`;
+  const coverHTML = (b, lazy) => `
+        <div class="cover">
+          <div class="cover-fallback"><span class="orn"></span><span class="t">${esc(b.title).replace(/, /g, ",<br>")}</span><span class="a">Alessandro Marchetti</span></div>
+          <img src="${base}${esc(b.cover)}" alt="Copertina di ${esc(b.title)}"${lazy ? ' loading="lazy"' : ""} onerror="this.remove()">
+        </div>`;
   const books = $("#book-list");
   if (books && S.books) {
     books.innerHTML = S.books.map((b) => `
-      <article class="book reveal">
-        <div class="cover">
-          <div class="cover-fallback"><span class="orn">❧</span><span class="t">${esc(b.title).replace(/, /g, ",<br>")}</span><span class="a">Alessandro Marchetti</span></div>
-          <img src="${base}${esc(b.cover)}" alt="Copertina di ${esc(b.title)}" loading="lazy" onerror="this.remove()">
-        </div>
-        <div>
-          <h3>${esc(b.title)}</h3>
+      <article class="book reveal${b.featured ? " featured" : ""}" style="${bookVars(b)}">
+        ${coverHTML(b, true)}
+        <div class="book-body">
+          <p class="book-area">${b.featured ? "Ultima pubblicazione · " : ""}${esc(b.area || "")}</p>
+          <h3>${esc(b.title).replace(/, /g, ",<br>")}</h3>
           <p class="sub">${esc(b.subtitle)}</p>
           <p>${esc(b.blurb)}</p>
           <ul class="tags">${(b.tags || []).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
@@ -86,6 +90,12 @@
             : `<span class="btn" aria-disabled="true">In arrivo su Amazon</span>`}
         </div>
       </article>`).join("");
+  }
+  /* Scaffale nella prima sezione: le copertine in ordine di uscita */
+  const shelf = $("#shelf");
+  if (shelf && S.books) {
+    const order = S.books.filter((b) => !b.featured).concat(S.books.filter((b) => b.featured));
+    shelf.innerHTML = order.map((b) => `<span class="shelf-item" style="${bookVars(b)}">${coverHTML(b, false)}</span>`).join("");
   }
 
   /* Galleria YouTube: ultimi caricamenti da videos.json (aggiornato da GitHub ogni 6 ore),
