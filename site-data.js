@@ -31,7 +31,7 @@ window.SITE = {
       color: "#fe6a00", ink: "#ffffff", dot: "#ffc93c",
       subtitle: "Perché annoiarsi, in modo consapevole, è la scintilla da cui nascono idee e cambiamenti",
       cover: "cover-la-noia-il-vero-motore-della-vita.jpg",
-      amazon: "",
+      amazon: "https://amzn.eu/d/09AtIR8K",
       blurb: "Riempiamo ogni minuto vuoto con uno schermo, e poi ci chiediamo perché le idee non arrivano. In questo libro scopri come la noia, vissuta in modo consapevole, diventa il terreno in cui nascono la creatività, le decisioni importanti e le svolte, anche sul lavoro. Con esercizi pratici per ritrovare lo spazio vuoto che la mente usa per inventare.",
       tags: ["Creatività", "Noia consapevole", "Lavoro"]
     },
