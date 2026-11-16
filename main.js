@@ -68,10 +68,10 @@
   }
 
   /* Libri */
-  const bookVars = (b) => `--bk:${esc(b.color || "#ff5a3c")};--bk-ink:${esc(b.ink || "#fff")};--bk-dot:${esc(b.dot || "#ffc93c")}`;
+  const bookVars = (b) => `--bk:${esc(b.color || "#e8892f")};--bk-bg:${esc(b.bg || "#f6f3ee")};--bk-ink:${esc(b.ink || "#1e2a44")}`;
   const coverHTML = (b, lazy) => `
         <div class="cover">
-          <div class="cover-fallback"><span class="orn"></span><span class="t">${esc(b.title).replace(/, /g, ",<br>")}</span><span class="a">Alessandro Marchetti</span></div>
+          <div class="cover-fallback"><span class="orn" aria-hidden="true"></span><span class="t">${esc(b.title).replace(/, /g, ",<br>")}</span><span class="a">Alessandro Marchetti</span></div>
           <img src="${base}${esc(b.cover)}" alt="Copertina di ${esc(b.title)}"${lazy ? ' loading="lazy"' : ""} onerror="this.remove()">
         </div>`;
   const books = $("#book-list");

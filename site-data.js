@@ -21,59 +21,59 @@ window.SITE = {
 
   /* Libri: incolla il link Amazon quando è disponibile.
      Se amazon è "", il pulsante mostra "In arrivo su Amazon".
-     color = colore della copertina, ink = colore del testo in copertina,
-     featured: true = mostrato in grande in cima (la novità). */
+     bg = sfondo della copertina, ink = colore del titolo, color = colore dei cerchi,
+     featured: true = mostrato in grande in cima (ultima pubblicazione). */
   books: [
     {
       title: "La noia, il vero motore della vita",
       area: "Creatività",
       featured: true,
-      color: "#fe6a00", ink: "#ffffff", dot: "#ffc93c",
-      subtitle: "Perché annoiarsi, in modo consapevole, è la scintilla da cui nascono idee e cambiamenti",
+      bg: "#f3ede2", ink: "#1e2a44", color: "#e8892f",
+      subtitle: "Il coraggio di non riempire tutto",
       cover: "cover-la-noia-il-vero-motore-della-vita.jpg",
       amazon: "https://amzn.eu/d/09AtIR8K",
-      blurb: "Riempiamo ogni minuto vuoto con uno schermo, e poi ci chiediamo perché le idee non arrivano. In questo libro scopri come la noia, vissuta in modo consapevole, diventa il terreno in cui nascono la creatività, le decisioni importanti e le svolte, anche sul lavoro. Con esercizi pratici per ritrovare lo spazio vuoto che la mente usa per inventare.",
-      tags: ["Creatività", "Noia consapevole", "Lavoro"]
+      blurb: "Ci annoiamo sempre meno, e pensiamo sempre peggio: ogni attesa, ogni pausa, ogni minuto vuoto finisce riempito da uno schermo. Eppure quasi tutte le idee che hanno cambiato qualcosa nella tua vita sono arrivate quando non le cercavi. In quattordici capitoli, ciascuno con un racconto, i punti chiave e un esercizio pratico, scopri come la noia vissuta con consapevolezza diventa un motore creativo, nella vita e nel lavoro.",
+      tags: ["Creatività", "Noia sul lavoro", "14 esercizi"]
     },
     {
       title: "Ritrova la Parola",
       area: "Comunicazione",
-      color: "#ff5a3c", ink: "#ffffff", dot: "#ffc93c",
-      subtitle: "Una guida pratica per imparare ad esprimerti in maniera efficace e carismatica in tutte le occasioni",
+      bg: "#e8eee5", ink: "#284438", color: "#d9849a",
+      subtitle: "Parlare bene. Farsi ascoltare. Guida pratica per imparare a esprimerti in maniera efficace e consapevole",
       cover: "cover-ritrova-la-parola.jpg",
       amazon: "https://amzn.eu/d/0aDT5QVA",
-      blurb: "Quindici capitoli su voce, corpo, mente sotto pressione, ascolto e guida della conversazione, più un percorso pratico di 90 giorni in trenta blocchi da tre giorni, con spazio per le tue annotazioni.",
+      blurb: "Non è la competenza a decidere chi viene ascoltato, capito e ricordato: è la comunicazione, e si allena. Quindici capitoli, ciascuno con un esercizio lampo da due minuti, su voce, dizione e corpo, chiarezza sotto pressione, ansia, storie che restano e guida della conversazione. Più un percorso pratico di 90 giorni.",
       tags: ["Comunicazione", "Public speaking", "90 giorni"]
     },
     {
       title: "La Tua Voce, La Tua Presenza",
       area: "Voce e presenza",
-      color: "#2b44ff", ink: "#ffffff", dot: "#ff5a3c",
-      subtitle: "Un percorso pratico per comunicare con sicurezza, dal vivo e in pubblico",
+      bg: "#f6f3ee", ink: "#1e2a44", color: "#5aaee8",
+      subtitle: "Allenare la voce, guadagnare presenza",
       cover: "cover-la-tua-voce-la-tua-presenza.jpg",
       amazon: "https://amzn.eu/d/07qjkZVK",
-      blurb: "Il seguito dedicato a voce, tono e presenza: i cinque fondamentali vocali, il corpo come telecomando, il coraggio di esporsi e un percorso personalizzato di 12 settimane con schede di lavoro.",
-      tags: ["Voce", "Presenza scenica", "12 settimane"]
+      blurb: "Ritrova la Parola ti ha dato il coraggio di usare la tua voce. Questo libro ti insegna a suonarla con precisione: velocità, volume, melodia, tonalità e pausa, allenati uno alla volta insieme al corpo che li sostiene. Con esercizi mirati, un metodo di revisione video in tre passaggi e un piano pratico di dodici settimane.",
+      tags: ["Voce", "Presenza", "12 settimane"]
     },
     {
       title: "Il Tuo Corpo, Il Tuo Centro",
       area: "Corpo",
-      color: "#249561", ink: "#ffffff", dot: "#ffc93c",
-      subtitle: "Respiro, postura e movimento per sentirti stabile, dentro e fuori",
+      bg: "#17563c", ink: "#ffffff", color: "#fdc93c",
+      subtitle: "Venti giorni di movimento, respiro e meditazione per tornare a casa, nel tuo corpo",
       cover: "cover-il-tuo-corpo-il-tuo-centro.jpg",
       amazon: "https://amzn.eu/d/05aV8G8U",
-      blurb: "Prima delle parole parla il corpo. Un percorso pratico di 20 giorni per riconnetterti con il tuo corpo attraverso respiro, postura e movimento, seguendo la mappa dei chakra, e portare quella stabilità in ogni momento della giornata.",
+      blurb: "Viviamo dal collo in su. In venti giorni, un esercizio al giorno, costruisci una sequenza completa di movimenti, respiri e meditazioni che attraversa i sette centri energetici del corpo, spiegati con chiarezza e senza misticismi. Alla fine avrai un rituale tuo: mezz’ora, o quindici minuti nei giorni pieni, per iniziare o chiudere la giornata.",
       tags: ["Corpo", "Respiro", "20 giorni"]
     },
     {
       title: "I Tuoi Soldi, Il Tuo Benessere",
       area: "Denaro",
-      color: "#fed500", ink: "#111111", dot: "#111111",
-      subtitle: "Una guida pratica di finanza personale, per gestire il denaro senza ansia",
+      bg: "#fdd400", ink: "#111111", color: "#fdd400",
+      subtitle: "Una guida pratica per imparare a gestire al meglio i tuoi soldi e liberarti dallo stress",
       cover: "cover-i-tuoi-soldi-il-tuo-benessere.jpg",
       amazon: "https://amzn.eu/d/0gNQ3bgV",
-      blurb: "Niente promesse di ricchezza facile. Dodici capitoli concreti per capire dove vanno i tuoi soldi, costruire abitudini che reggono nel tempo e togliere al denaro il peso dello stress quotidiano.",
-      tags: ["Finanza personale", "Abitudini", "12 capitoli"]
+      blurb: "Guadagni abbastanza, eppure a fine mese il conto è sempre vicino allo zero. Attraverso la storia di Marco e di sua zia Teresa, dodici regole semplici per gestire meglio il denaro: dove vanno davvero i tuoi soldi, il fondo di emergenza, quando le rate convengono, i primi passi nell’investimento. Niente promesse di ricchezza facile: un metodo onesto, con un percorso di dodici settimane.",
+      tags: ["Finanza personale", "12 regole", "12 settimane"]
     }
   ],
 

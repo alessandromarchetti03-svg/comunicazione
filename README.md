@@ -17,4 +17,4 @@ revocabile con "Preferenze video". Informativa in `privacy.html`.
 
 ## Caratteri
 
-Inter e Inter Display sono salvati sul sito (`inter-*.woff` + `fonts.css`), nessuna richiesta a Google. La cartella `fonts/` creata dal workflow non è più usata.
+Inter è salvato sul sito (`inter-*.woff` + `fonts.css`), nessuna richiesta a Google. La cartella `fonts/` creata dal workflow non è più usata.
