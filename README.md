@@ -72,3 +72,6 @@ Caso di studio del software gestionale, con riquadro in `altri-progetti.html` (s
 
 ## Siti web (riquadro in altri-progetti.html)
 Riquadro con i due siti sviluppati: ciemmegiardini.it e emme2000impiantielettrici.it (link esterni). Sta sopra Melodie Capogiro, che resta ultima.
+
+## Lavora con me (pagina lavora-con-me.html)
+Tre offerte (siti web, software su misura, formazione) con pulsante email che apre il programma di posta con l'oggetto già scritto (`data-email` + `data-subject`, gestito da main.js; l'indirizzo è in `site-data.js`). Nessun modulo. Voce di menu evidenziata «Lavora con me» in tutte le pagine; striscia introduttiva nella home. La home ora si presenta con «Costruisco strumenti pratici».

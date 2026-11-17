@@ -62,7 +62,7 @@ a { color: var(--forest); text-underline-offset: 3px; }
 .nav a { color: var(--on-night-2); text-decoration: none; font-size: 15px; font-weight: 500; transition: color .2s; }
 @media (hover: hover) { .nav a:hover { color: #fff; } }
 .menu-btn { display: none; background: none; color: #fff; border: 1px solid color-mix(in srgb, #fff 25%, transparent); font: 600 14px var(--sans); padding: 8px 16px; border-radius: 99px; cursor: pointer; }
-@media (max-width: 1060px) {
+@media (max-width: 1180px) {
   .menu-btn { display: block; }
   .nav { display: none; position: absolute; top: 70px; left: 0; right: 0; flex-direction: column; gap: 0; background: var(--night); padding: 8px 0 16px; border-bottom: 1px solid color-mix(in srgb, #fff 10%, transparent); }
   .nav.open { display: flex; }
@@ -620,3 +620,27 @@ textarea.tv-in { resize: vertical; min-height: 84px; }
 .web-list p { font-size: 16px; }
 .web-art { justify-self: center; width: min(100%, 200px); }
 @media (max-width: 760px) { .project.web { grid-template-columns: 1fr; } .web-art { width: 120px; justify-self: start; order: -1; } }
+
+/* Lavora con me */
+.nav a.nav-cta { color: var(--night); background: var(--amber); padding: 8px 16px; border-radius: 99px; font-weight: 700; }
+@media (hover: hover) { .nav a.nav-cta:hover { color: var(--night); filter: brightness(1.08); } }
+@media (max-width: 1180px) { .nav a.nav-cta { margin: 10px 24px 0; align-self: flex-start; padding: 12px 22px; } }
+.offers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.offer { background: var(--night); color: var(--on-night); border-radius: 24px; padding: 34px 30px; display: grid; gap: 14px; align-content: start; }
+.offer h2 { font-size: clamp(24px, 2.4vw, 30px); color: #fff; margin: 0; line-height: 1.15; }
+.offer p { margin: 0; color: var(--on-night); }
+.offer .offer-tag { font-size: 12px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--amber); }
+.offer ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.offer li { position: relative; padding-left: 20px; font-size: 15.5px; line-height: 1.5; color: var(--on-night); }
+.offer li::before { content: ""; position: absolute; left: 2px; top: .6em; width: 8px; height: 8px; border-radius: 2px; background: var(--amber); transform: rotate(45deg); }
+.offer .offer-proof { font-size: 15px; color: var(--on-night-2); padding-top: 12px; border-top: 1px solid rgba(255,255,255,.14); }
+.offer .offer-proof a { color: #fff; }
+.offer .btn { justify-self: start; margin-top: 6px; }
+.work-more { display: grid; grid-template-columns: 1.2fr 1fr; gap: 56px; padding-top: 24px; }
+.work-more h2 { margin: 0 0 18px; font-size: clamp(26px, 3vw, 34px); }
+.work-steps { margin: 0; padding-left: 22px; display: grid; gap: 12px; }
+.work-more p { max-width: 46ch; }
+.work-strip .work-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 28px; }
+.work-strip h3 { font-size: 22px; margin: 0 0 8px; }
+.work-strip p { margin: 0; }
+@media (max-width: 1000px) { .offers { grid-template-columns: 1fr; } .work-more { grid-template-columns: 1fr; gap: 36px; } .work-strip .work-cols { grid-template-columns: 1fr; gap: 18px; } }

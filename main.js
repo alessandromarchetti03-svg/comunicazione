@@ -173,7 +173,7 @@
   }
 
   /* Contatti */
-  document.querySelectorAll("[data-email]").forEach((a) => { a.href = "mailto:" + S.email; if (!a.textContent.trim()) a.textContent = S.email; });
+  document.querySelectorAll("[data-email]").forEach((a) => { a.href = "mailto:" + S.email + (a.dataset.subject ? "?subject=" + encodeURIComponent(a.dataset.subject) : ""); if (!a.textContent.trim()) a.textContent = S.email; });
   [["instagram", "[data-ig]"], ["linkedin", "[data-li]"]].forEach(([k, sel]) =>
     document.querySelectorAll(sel).forEach((a) => (S[k] ? (a.href = S[k]) : a.remove())));
 
