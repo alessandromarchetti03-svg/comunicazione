@@ -60,7 +60,6 @@ a { color: var(--forest); text-underline-offset: 3px; }
 .brand span { color: var(--on-night-2); }
 .nav { display: flex; gap: 26px; }
 .nav a { color: var(--on-night-2); text-decoration: none; font-size: 15px; font-weight: 500; transition: color .2s; }
-.nav a[aria-current="page"] { color: #fff; font-weight: 700; }
 @media (hover: hover) { .nav a:hover { color: #fff; } }
 .menu-btn { display: none; background: none; color: #fff; border: 1px solid color-mix(in srgb, #fff 25%, transparent); font: 600 14px var(--sans); padding: 8px 16px; border-radius: 99px; cursor: pointer; }
 @media (max-width: 1060px) {
