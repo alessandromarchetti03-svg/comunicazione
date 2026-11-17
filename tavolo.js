@@ -301,8 +301,8 @@
   }
 
   /* ---------- Senza vergogna: gioco di carte 18+ ---------- */
-  function cahW() { return CAH.white.concat(toArr(S.tree.meta && S.tree.meta.cw)); }
-  function cahB() { return CAH.black.concat(toArr(S.tree.meta && S.tree.meta.cb)); }
+  function cahW() { return CAH.white.concat(CAH.whiteX || [], toArr(S.tree.meta && S.tree.meta.cw)); }
+  function cahB() { return CAH.black.concat(CAH.blackX || [], toArr(S.tree.meta && S.tree.meta.cb)); }
   function mapOf(o) { var r = {}; Object.keys(o).forEach(function (k) { r[k] = true; }); return r; }
   function cahDraw(m) { if (!m.deck.length) { m.deck = shuffle(m.disc); m.disc = []; } return m.deck.pop(); }
   function setupCAH() {
@@ -311,6 +311,7 @@
       '<form class="tv-card" id="tv-form" autocomplete="off">' +
       '<p class="tv-label">Vietato ai minori di 18 anni</p><h2>Senza vergogna</h2>' +
       '<p class="tv-muted">Ogni turno uno di voi fa il lettore: legge la carta nera, gli altri scelgono una carta bianca per completarla. Poi si votano le risposte, senza poter votare la propria. Linguaggio esplicito e humour nero.</p>' +
+      '<label class="tv-label" for="tv-lv">Livello delle carte</label><select class="tv-in" id="tv-lv"><option value="max" selected>Estremo: senza filtri (predefinito)</option><option value="soft">Piccante: esplicito ma meno spinto</option></select>' +
       '<label class="tv-label" for="tv-giri">Quanti giri?</label><select class="tv-in" id="tv-giri"><option value="1">1 giro: ognuno legge una volta</option><option value="2">2 giri</option><option value="3">3 giri</option></select>' +
       '<details class="tv-det"><summary>Aggiungi carte tue (facoltativo)</summary>' +
       '<p class="tv-muted">Una per riga. Nelle carte nere scrivi «_____» dove va la risposta.</p>' +
@@ -329,13 +330,15 @@
       if (hp && !hn) { err.textContent = "Scrivi il tuo nome, oppure togli la spunta."; return; }
       function lines(id, max) { return $(id).value.split("\n").map(function (x) { return x.trim().slice(0, max); }).filter(Boolean).slice(0, 30); }
       var cb = lines("#tv-cb", 140).filter(function (x) { return /_{3,}/.test(x) || /\?/.test(x); }), cw = lines("#tv-cw", 80);
-      createRoom({ cats: [], secs: 0, hostName: hp ? hn : "", cah: { giri: +$("#tv-giri").value, cb: cb, cw: cw } });
+      createRoom({ cats: [], secs: 0, hostName: hp ? hn : "", cah: { giri: +$("#tv-giri").value, level: $("#tv-lv").value, cb: cb, cw: cw } });
     });
   }
   function startCAH(ids) {
     var m = S.m, W = cahW(), B = cahB();
     m.order = ids; m.wedges = {}; m.score = {}; ids.forEach(function (i) { m.score[i] = 0; });
-    m.deck = shuffle(range(W.length)); m.disc = []; m.bdeck = shuffle(range(B.length)); m.hands = {}; m.ri = -1; m.cur = null;
+    var xw = [CAH.white.length, CAH.white.length + (CAH.whiteX || []).length], xb = [CAH.black.length, CAH.black.length + (CAH.blackX || []).length], soft = m.cah.level === "soft";
+    function keep(lo, hi) { return function (i) { return !soft || i < lo || i >= hi; }; }
+    m.deck = shuffle(range(W.length).filter(keep(xw[0], xw[1]))); m.disc = []; m.bdeck = shuffle(range(B.length).filter(keep(xb[0], xb[1]))); m.hands = {}; m.ri = -1; m.cur = null;
     ids.forEach(function (id) { m.hands[id] = []; for (var k = 0; k < 7; k++) m.hands[id].push(cahDraw(m)); });
     put("/hands", m.hands); del("/priv"); del("/mine");
     put("/meta/status", "playing");
@@ -347,7 +350,7 @@
     while (tries < n && m.off.indexOf(m.order[m.ri % n]) >= 0) { m.ri++; tries++; }
     if (m.ri >= total) return cahEnd();
     rd = m.order[m.ri % n];
-    if (!m.bdeck.length) m.bdeck = shuffle(range(cahB().length));
+    if (!m.bdeck.length) m.bdeck = shuffle(range(cahB().length).filter(function (i) { return m.cah.level !== "soft" || i < CAH.black.length || i >= CAH.black.length + (CAH.blackX || []).length; }));
     m.cur = { qid: rid(), reader: rd, black: m.bdeck.pop(), picks: {}, votes: {}, subs: null, stage: "p" };
     del("/priv"); del("/mine");
     publish({ phase: "cp", qid: m.cur.qid, reader: rd, black: m.cur.black, rn: m.ri + 1, rt: total, picked: null, voted: null, answers: null, reveal: null, scores: m.score, winners: null });

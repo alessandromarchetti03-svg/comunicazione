@@ -50,7 +50,7 @@ Stesso motore del baby shower (`TAVOLO_MODE = "bd"`), dati in `compleanno-data.j
 Chi sono, Libri, Esercizi (esercizi.html), Giochi (giochi.html: Sfida a spicchi, Baby shower, Festa di compleanno), Progetti (altri-progetti.html), Omaggio, Video, Blog, Contatti.
 
 ## Senza vergogna (pagina senza-vergogna.html, 18+)
-Gioco di carte per adulti (`TAVOLO_MODE = "cah"`), carte originali in `senzavergogna-data.js` (81 nere, 170 bianche). Il master può aggiungere carte sue.
+Gioco di carte per adulti (`TAVOLO_MODE = "cah"`), carte originali in `senzavergogna-data.js` (base «piccante»: 81 nere, 169 bianche; livello «estremo», predefinito: altre 36 nere e 112 bianche). Il master sceglie il livello alla creazione. Il master può aggiungere carte sue.
 - Ogni turno un giocatore diverso è il lettore (a rotazione): legge la carta nera; gli altri scelgono una delle 7 carte bianche, che viene subito rimpiazzata.
 - Le risposte restano nascoste agli altri finché il lettore non le ha lette tutte e preme «Mostra a tutti»; poi tutti (lettore compreso) votano, ma non la propria carta. Un punto alla carta più votata (pari merito: un punto a testa).
 - Serve il consenso «ho almeno 18 anni» del master all'avvio e di ogni giocatore all'ingresso. Servono almeno 3 giocatori.
