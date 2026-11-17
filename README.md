@@ -9,7 +9,7 @@ Sito statico per GitHub Pages. Tutti i file stanno nella cartella principale.
 ## Giochi formativi e Altri progetti
 - `giochi.html` + `giochi-data.js` (contenuti) + `giochi.js` (motore). Ogni gioco è una lista di «slot»: a ogni partita viene pescata una variante a caso per slot. Per aggiungere varianti basta aggiungere elementi in `giochi-data.js`.
 - Nessun dato viene salvato o inviato (niente cookie, niente localStorage).
-- Sezione «Altri progetti» nella home (`#progetti`). L'indirizzo del canale Melodie Capogiro è `melodieChannel` in `site-data.js`: ora è un link di ricerca provvisorio, sostituiscilo con l'indirizzo esatto del canale.
+- Pagina «Altri progetti» (`altri-progetti.html`, voce «Progetti» nel menu). L'indirizzo del canale Melodie Capogiro è `melodieChannel` in `site-data.js`: ora è un link di ricerca provvisorio, sostituiscilo con l'indirizzo esatto del canale.
 
 ## Automazione YouTube e caratteri
 Il file del flusso automatico deve stare in `.github/workflows/youtube.yml`
@@ -23,3 +23,6 @@ revocabile con "Preferenze video". Informativa in `privacy.html`.
 ## Caratteri
 
 Inter è salvato sul sito (`inter-*.woff` + `fonts.css`), nessuna richiesta a Google. La cartella `fonts/` creata dal workflow non è più usata.
+
+## Menu
+Le stesse 8 voci (Chi sono, Libri, Giochi, Progetti, Omaggio, Video, Blog, Contatti) sono in tutte le pagine, con link che funzionano da ovunque. Se ne aggiungi una, ricopiala in ogni file `.html`.
