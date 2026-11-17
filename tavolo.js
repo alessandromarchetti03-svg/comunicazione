@@ -6,7 +6,7 @@
   "use strict";
   var CATS = window.TAVOLO_CATS || [], BANK = window.TAVOLO_Q || {}, CFG = window.TAVOLO_CONFIG || {};
   var DB = (CFG.db || "").replace(/\/$/, "");
-  var MODE = window.TAVOLO_MODE === "bs" ? "bs" : window.TAVOLO_MODE === "bd" ? "bd" : window.TAVOLO_MODE === "cah" ? "cah" : window.TAVOLO_MODE === "dis" ? "dis" : "quiz";
+  var MODE = window.TAVOLO_MODE === "bs" ? "bs" : window.TAVOLO_MODE === "bd" ? "bd" : window.TAVOLO_MODE === "cah" ? "cah" : window.TAVOLO_MODE === "dis" ? "dis" : window.TAVOLO_MODE === "who" ? "who" : window.TAVOLO_MODE === "par" ? "par" : "quiz";
   var NOI = { id: "noi", name: "Su di noi", color: "#ffffff" };
   var root = document.getElementById("tv");
   if (!root) return;
@@ -21,6 +21,7 @@
   var CH = "ABCDEFGHJKMNPQRSTUVWXYZ";
   function randCode() { var s = ""; for (var i = 0; i < 4; i++) s += CH[rnd(CH.length)]; return s; }
   var BS = window.TAVOLO_BS || { cats: [], Q: {}, names: { f: [], m: [] } }, LOCALCN = null;
+  var WHO = window.TAVOLO_WHO || { q: [], x: [] }, PAR = window.TAVOLO_PAR || { words: [] };
   var DIS = window.TAVOLO_DIS || { levels: [], words: [[], [], [], []] };
   var BD = window.TAVOLO_BD || { cats: [] }, CAH = window.TAVOLO_CAH || { black: [], white: [] };
   function bsCat(id) { return BS.cats.concat(BD.cats).filter(function (c) { return c.id === id; })[0]; }
@@ -80,10 +81,10 @@
     if (q) { return joinForm(q[1].toUpperCase()); }
     shell(
       '<div class="tv-home">' +
-      '<button class="tv-big" id="tv-new" type="button"><b>' + (MODE === "bs" || MODE === "bd" ? "Crea la festa" : "Crea una partita") + '</b><span>' + (MODE === "bs" ? "Sei il master: scrivi i nomi, scegli le categorie e invita gli ospiti." : MODE === "bd" ? "Sei il master: imposta gli anni del festeggiato, le categorie e invita gli ospiti." : MODE === "cah" ? "Sei il master: scegli i giri e invita gli amici (servono almeno 3 giocatori)." : MODE === "dis" ? "Sei il master: scegli i giri e il tempo, poi invita gli amici." : "Sei il master: scegli le regole e invita gli amici.") + '</span></button>' +
+      '<button class="tv-big" id="tv-new" type="button"><b>' + (MODE === "bs" || MODE === "bd" ? "Crea la festa" : "Crea una partita") + '</b><span>' + (MODE === "bs" ? "Sei il master: scrivi i nomi, scegli le categorie e invita gli ospiti." : MODE === "bd" ? "Sei il master: imposta gli anni del festeggiato, le categorie e invita gli ospiti." : MODE === "cah" ? "Sei il master: scegli i giri e invita gli amici (servono almeno 3 giocatori)." : MODE === "dis" ? "Sei il master: scegli i giri e il tempo, poi invita gli amici." : MODE === "who" ? "Sei il master: scegli quante domande, poi invita gli amici (servono almeno 3 giocatori)." : MODE === "par" ? "Sei il master: invita gli amici, le squadre le sorteggia il gioco (servono almeno 4 giocatori)." : "Sei il master: scegli le regole e invita gli amici.") + '</span></button>' +
       '<button class="tv-big alt" id="tv-join" type="button"><b>Entra con un codice</b><span>Hai ricevuto un codice o un QR? Entra qui.</span></button>' +
       '</div>');
-    $("#tv-new").addEventListener("click", MODE === "bs" ? setupBS : MODE === "bd" ? setupBD : MODE === "cah" ? setupCAH : MODE === "dis" ? setupDIS : setup);
+    $("#tv-new").addEventListener("click", MODE === "bs" ? setupBS : MODE === "bd" ? setupBD : MODE === "cah" ? setupCAH : MODE === "dis" ? setupDIS : MODE === "who" ? setupWHO : MODE === "par" ? setupPAR : setup);
     $("#tv-join").addEventListener("click", function () { joinForm(""); });
   }
   function cleanup() {
@@ -482,6 +483,254 @@
     return html + '<div class="tv-card"><p class="tv-label">Punteggi</p>' + cahScore(st, false) + "</div>";
   }
 
+  /* ---------- Indovina chi ha scritto cosa ---------- */
+  function setupWHO() {
+    S.view = "setup";
+    shell(
+      '<form class="tv-card" id="tv-form" autocomplete="off">' +
+      '<h2>Indovina chi ha scritto cosa</h2>' +
+      '<p class="tv-muted">A ogni domanda tutti scrivono in segreto la propria risposta. Poi le risposte compaiono una alla volta, senza nome, e ognuno indovina chi l’ha scritta. Punti a chi indovina e a chi scrive, per ogni persona che riesce a ingannare.</p>' +
+      '<label class="tv-label" for="tv-n">Quante domande?</label><select class="tv-in" id="tv-n"><option value="1">1 domanda</option><option value="2">2 domande</option><option value="3" selected>3 domande</option><option value="4">4 domande</option><option value="5">5 domande</option></select>' +
+      '<label class="tv-label" for="tv-lv">Che tipo di domande?</label><select class="tv-in" id="tv-lv"><option value="n">Per tutti</option><option value="x">Anche quelle piccanti</option></select>' +
+      '<p class="tv-muted">Per ogni domanda si indovinano al massimo 8 risposte, scelte a caso.</p>' +
+      '<details class="tv-det"><summary>Aggiungi domande tue (facoltativo)</summary><p class="tv-muted">Una per riga. Verranno usate per prime.</p>' +
+      '<textarea class="tv-in" id="tv-cq" rows="4" maxlength="1200" placeholder="Il regalo più strano che ho fatto a Marco"></textarea></details>' +
+      '<label class="tv-check solo"><input type="checkbox" id="tv-hp" checked><span>Gioco anch’io, su questo dispositivo</span></label>' +
+      '<input class="tv-in" id="tv-hname" maxlength="16" placeholder="Il tuo nome" aria-label="Il tuo nome">' +
+      '<p class="tv-err" id="tv-err" role="alert"></p>' +
+      '<div class="tv-row"><button class="tv-btn" type="submit">Crea partita</button><button class="tv-btn ghost" id="tv-back" type="button">Indietro</button></div></form>');
+    $("#tv-back").addEventListener("click", goHome);
+    $("#tv-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var err = $("#tv-err"), hp = $("#tv-hp").checked, hn = $("#tv-hname").value.trim();
+      if (hp && !hn) { err.textContent = "Scrivi il tuo nome, oppure togli la spunta."; return; }
+      var wq = $("#tv-cq").value.split("\n").map(function (x) { return x.trim().slice(0, 120); }).filter(Boolean).slice(0, 10);
+      createRoom({ cats: [], secs: 0, hostName: hp ? hn : "", who: { count: +$("#tv-n").value, spicy: $("#tv-lv").value === "x", wq: wq } });
+    });
+  }
+  function startWHO(ids) {
+    var m = S.m, cust = toArr(S.tree.meta && S.tree.meta.wq);
+    m.order = ids; m.wedges = {}; m.score = {}; ids.forEach(function (i) { m.score[i] = 0; });
+    m.qs = cust.concat(shuffle(WHO.q.concat(m.who.spicy ? WHO.x : [])).slice(0, Math.max(0, m.who.count - cust.length)));
+    m.qi = -1; m.cur = null; del("/priv");
+    put("/meta/status", "playing");
+    whoNext();
+  }
+  function whoNext() {
+    var m = S.m; clearTimeout(m.to); m.qi++;
+    if (m.qi >= m.qs.length) return whoEnd();
+    m.cur = { qid: rid(), q: m.qs[m.qi], ans: {}, stage: "w", order: [], k: 0, votes: {} };
+    del("/priv");
+    publish({ phase: "wq", qid: m.cur.qid, q: m.cur.q, qn: m.qi + 1, qt: m.qs.length, wrote: null, voted: null, ak: null, at: null, atext: null, reveal: null, scores: m.score, winners: null });
+  }
+  function whoOnline(m) { return m.order.filter(function (id) { return m.off.indexOf(id) < 0; }); }
+  function whoAct(x) {
+    var m = S.m, c = m.cur; if (!c || x.qid !== c.qid || !(S.tree.players || {})[x.pid]) return;
+    if (x.t === "ans" && c.stage === "w") {
+      var t = String(x.text || "").trim().slice(0, 80); if (!t || c.ans[x.pid] !== undefined) return;
+      c.ans[x.pid] = t; publish({ wrote: mapOf(c.ans) }); whoCheck();
+    } else if (x.t === "guess" && c.stage === "g") {
+      var au = c.order[c.k];
+      if (x.pid === au || c.votes[x.pid] !== undefined || x.g === x.pid || !(S.tree.players || {})[x.g]) return;
+      c.votes[x.pid] = x.g; publish({ voted: mapOf(c.votes) }); whoCheck();
+    }
+  }
+  function whoCheck() {
+    var m = S.m, c = m && m.cur; if (!c) return;
+    if (c.stage === "w") { var on = whoOnline(m); if (on.length && on.every(function (id) { return c.ans[id] !== undefined; })) whoStartG(); }
+    else if (c.stage === "g") { var au = c.order[c.k], need = whoOnline(m).filter(function (id) { return id !== au; }); if (!need.length || need.every(function (id) { return c.votes[id] !== undefined; })) whoReveal(); }
+  }
+  function whoStartG() {
+    var m = S.m, c = m.cur, ids = shuffle(Object.keys(c.ans)).slice(0, 8);
+    if (!ids.length) return whoNext();
+    c.order = ids; c.k = 0; whoShow();
+  }
+  function whoShow() {
+    var m = S.m, c = m.cur, au = c.order[c.k]; c.votes = {}; c.stage = "g";
+    put("/priv", { to: au, key: c.qid + ":" + c.k });
+    publish({ phase: "wg", ak: c.k + 1, at: c.order.length, atext: c.ans[au], voted: null, reveal: null });
+    whoCheck();
+  }
+  function whoReveal() {
+    var m = S.m, c = m.cur; if (!c || c.stage !== "g") return; c.stage = "r";
+    var au = c.order[c.k], right = {}, fooled = 0;
+    Object.keys(c.votes).forEach(function (p) { if (c.votes[p] === au) { right[p] = true; m.score[p] = (m.score[p] || 0) + 1; } else fooled++; });
+    m.score[au] = (m.score[au] || 0) + fooled;
+    del("/priv");
+    publish({ phase: "wr", reveal: { author: au, guesses: c.votes, right: right, fooled: fooled }, scores: m.score });
+    m.to = setTimeout(whoAdvance, 10000);
+  }
+  function whoAdvance() {
+    var m = S.m, c = m.cur; clearTimeout(m.to); if (!c) return;
+    c.k++; if (c.k < c.order.length) whoShow(); else whoNext();
+  }
+  function whoForce() {
+    var m = S.m, c = m.cur; if (!c) return;
+    if (c.stage === "w") whoStartG(); else if (c.stage === "g") whoReveal(); else whoAdvance();
+  }
+  function whoEnd() {
+    var m = S.m, best = -1, w = {}; m.cur = null;
+    m.order.forEach(function (id) { if (m.score[id] > best) best = m.score[id]; });
+    m.order.forEach(function (id) { if (m.score[id] === best) w[id] = true; });
+    publish({ phase: "wend", scores: m.score, winners: w, atext: null, reveal: null, voted: null, wrote: null });
+    put("/meta/status", "ended");
+  }
+  function whoSend(a, st) {
+    a.pid = S.me; a.qid = st.qid;
+    if (S.role === "master") whoAct(a); else put("/actions/" + rid(), a);
+    S.sig = ""; render();
+  }
+  function whoView(st) {
+    if (st.phase === "wend") {
+      var pl0 = S.tree.players || {}, wn = Object.keys(st.winners || {}).map(function (i) { return pl0[i] ? pl0[i].name : "?"; });
+      var h0 = '<div class="tv-card tv-end"><p class="tv-label">Partita finita</p><h2>' + (wn.length === 1 ? "Vince " + esc(wn[0]) + "!" : "Pari merito: " + esc(wn.join(" e ")) + "!") + '</h2><p class="tv-muted">Il miglior detective, o il miglior bugiardo, del gruppo.</p></div><div class="tv-card"><p class="tv-label">Classifica</p>' + cahScore(st, true) + "</div>";
+      if (S.role === "master") h0 += '<div class="tv-row"><button class="tv-btn" id="tv-again" type="button">Nuova partita</button><button class="tv-btn ghost" id="tv-close" type="button">Chiudi la stanza</button></div>';
+      return h0 + '<p class="tv-muted">Il master può avviare una nuova partita.</p>';
+    }
+    var pl = S.tree.players || {}, me = S.me, off = toArr(st.off), bar = "", body = "";
+    var ids = Object.keys(pl).sort(function (a, b) { return (pl[a].t || 0) - (pl[b].t || 0); });
+    var head = '<p class="tv-label">Domanda ' + st.qn + " di " + st.qt + '</p><h2 class="tv-qt">' + esc(st.q) + "</h2>";
+    if (st.phase === "wq") {
+      var wrote = st.wrote || {}, done = !!me && (!!wrote[me] || S.wa === st.qid);
+      if (!me) { bar = '<div class="tv-turnbar watch">Scrivono: <b>' + Object.keys(wrote).length + "</b> su " + ids.length + "</div>"; body = cahChips(ids, wrote, off); }
+      else if (done) { bar = '<div class="tv-turnbar watch">Risposta inviata ✓</div>'; body = '<p class="tv-muted">Aspetto gli altri…</p>' + cahChips(ids, wrote, off); }
+      else { bar = '<div class="tv-turnbar me">SCRIVI LA TUA RISPOSTA</div>'; body = '<textarea class="tv-in" id="who-t" rows="3" maxlength="80" placeholder="La tua risposta (massimo 80 caratteri)">' + esc(S.wt || "") + '</textarea><p class="tv-muted">Nessuno saprà che l’hai scritta tu finché non la indovinano.</p><div class="tv-row"><button class="tv-btn" id="who-send" type="button">Invia</button></div>'; }
+    } else if (st.phase === "wg") {
+      var pv = S.tree.priv, isAu = !!me && !!pv && pv.to === me && pv.key === st.qid + ":" + (st.ak - 1), voted = st.voted || {}, iV = !!me && (S.gv === st.qid + ":" + st.ak || !!voted[me]);
+      bar = !me ? '<div class="tv-turnbar watch">Votano: <b>' + Object.keys(voted).length + "</b></div>" : isAu ? '<div class="tv-turnbar watch">È la tua risposta! Gli altri stanno indovinando</div>' : iV ? '<div class="tv-turnbar watch">Voto inviato ✓</div>' : '<div class="tv-turnbar me">CHI L’HA SCRITTA?</div>';
+      body = '<p class="tv-muted">Risposta ' + st.ak + " di " + st.at + '</p><blockquote class="who-ans">“' + esc(st.atext) + "”</blockquote>" +
+        (me && !isAu && !iV ? '<div class="who-opts">' + ids.filter(function (id) { return id !== me; }).map(function (id) { return '<button type="button" class="tv-btn ghost" data-g="' + id + '">' + esc(pl[id].name) + "</button>"; }).join("") + "</div>" : cahChips(ids, voted, off));
+    } else {
+      var rv = st.reveal || {}, gs = rv.guesses || {}, rt = rv.right || {}, gk = Object.keys(gs);
+      bar = '<div class="tv-turnbar good">L’ha scritta <b>' + esc(pname(rv.author)) + (rv.author === me ? " (tu)" : "") + "</b></div>";
+      body = '<blockquote class="who-ans">“' + esc(st.atext) + "”</blockquote>" +
+        (gk.length ? '<ul class="tv-score">' + gk.map(function (p) { return '<li><span class="tv-pn">' + esc(pname(p)) + " → " + esc(pname(gs[p])) + '</span><span class="tv-pc">' + (rt[p] ? "✓ +1" : "✗") + "</span></li>"; }).join("") + "</ul>" : '<p class="tv-muted">Nessuno ha votato.</p>') +
+        '<p class="tv-msg" role="status">' + esc(pname(rv.author)) + " ha ingannato " + (rv.fooled || 0) + (rv.fooled === 1 ? " persona" : " persone") + (rv.fooled ? ": +" + rv.fooled : "") + ".</p>";
+    }
+    var html = '<div class="tv-card dis-card">' + bar + head + body + "</div>";
+    if (S.role === "master") html += '<div class="tv-row">' + (st.phase === "wr" ? '<button class="tv-btn" id="tv-skip" type="button">Continua</button>' : '<button class="tv-btn ghost" id="tv-skipq" type="button">Passa avanti</button>') + '<button class="tv-btn ghost" id="tv-stop" type="button">Termina partita</button></div>';
+    return html + '<div class="tv-card"><p class="tv-label">Punteggi</p>' + cahScore(st, false) + "</div>";
+  }
+  function whoMount(st) {
+    var t = $("#who-t");
+    if (t) t.addEventListener("input", function () { S.wt = t.value; });
+    var b = $("#who-send");
+    if (b) b.addEventListener("click", function () { var v = t.value.trim(); if (!v) return; S.wa = st.qid; S.wt = ""; whoSend({ t: "ans", text: v }, st); });
+    $$(".who-opts [data-g]").forEach(function (x) { x.addEventListener("click", function () { S.gv = st.qid + ":" + st.ak; whoSend({ t: "guess", g: x.dataset.g }, st); }); });
+  }
+
+  /* ---------- Parole in comune ---------- */
+  function nrm(s) { return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim(); }
+  function setupPAR() {
+    S.view = "setup";
+    shell(
+      '<form class="tv-card" id="tv-form" autocomplete="off">' +
+      '<h2>Parole in comune</h2>' +
+      '<p class="tv-muted">Due squadre, Rossa e Blu, e 25 parole sul tavolo. Ogni squadra ha un capitano che conosce le parole della sua squadra e dà un indizio di una sola parola più un numero, per far trovare ai compagni più parole possibili. Attenzione alle parole dell’altra squadra e soprattutto a quella nera: chi la tocca perde. Servono almeno 4 giocatori; le squadre le sorteggia il gioco.</p>' +
+      '<label class="tv-check solo"><input type="checkbox" id="tv-hp" checked><span>Gioco anch’io, su questo dispositivo</span></label>' +
+      '<input class="tv-in" id="tv-hname" maxlength="16" placeholder="Il tuo nome" aria-label="Il tuo nome">' +
+      '<p class="tv-err" id="tv-err" role="alert"></p>' +
+      '<div class="tv-row"><button class="tv-btn" type="submit">Crea partita</button><button class="tv-btn ghost" id="tv-back" type="button">Indietro</button></div></form>');
+    $("#tv-back").addEventListener("click", goHome);
+    $("#tv-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var hp = $("#tv-hp").checked, hn = $("#tv-hname").value.trim();
+      if (hp && !hn) { $("#tv-err").textContent = "Scrivi il tuo nome, oppure togli la spunta."; return; }
+      createRoom({ cats: [], secs: 0, hostName: hp ? hn : "", par: { on: 1 } });
+    });
+  }
+  function parPub(ph, extra) {
+    var g = S.m.pg;
+    publish(Object.assign({ phase: ph, qid: g.qid, turn: g.turn, left: g.left, clue: g.clue, rev: g.rev, rem: g.rem, teams: g.team, cap: g.cap, words: g.words, winner: null, key: null }, extra || {}));
+  }
+  function startPAR(ids) {
+    var m = S.m, sh = shuffle(ids), first = rnd(2) ? "r" : "b", second = first === "r" ? "b" : "r", team = {}, cap = {}, k = [], i;
+    sh.forEach(function (id, j) { team[id] = j % 2 ? second : first; });
+    cap[first] = sh[0]; cap[second] = sh[1];
+    for (i = 0; i < 9; i++) k.push(first); for (i = 0; i < 8; i++) k.push(second); for (i = 0; i < 7; i++) k.push("n"); k.push("x");
+    var o = {}; o[first] = 9; o[second] = 8;
+    m.pg = { team: team, cap: cap, key: shuffle(k), words: shuffle(PAR.words).slice(0, 25), rev: {}, rem: o, turn: first, left: 0, clue: null, qid: rid() };
+    m.order = ids; m.wedges = {}; m.cur = null;
+    var cm = {}; cm[cap.r] = true; cm[cap.b] = true;
+    put("/priv", { caps: cm, key: m.pg.key.join("") });
+    put("/meta/status", "playing");
+    parPub("ps", { scores: null, winners: null });
+  }
+  function parAct(x) {
+    var m = S.m, g = m.pg; if (!g || x.qid !== g.qid) return;
+    var ph = m.state.phase, ops = g.team[x.pid] === g.turn && x.pid !== g.cap[g.turn];
+    if (x.t === "clue" && ph === "ps" && x.pid === g.cap[g.turn]) {
+      var w = String(x.w || "").trim().slice(0, 20), n = Math.floor(+x.n);
+      if (!w || /\s/.test(w) || !(n >= 1 && n <= 9)) return;
+      if (g.words.some(function (u, i) { return !g.rev["c" + i] && nrm(u) === nrm(w); })) return;
+      g.clue = { w: w, n: n }; g.left = n + 1; parPub("pg");
+    } else if (x.t === "tap" && ph === "pg" && ops) parReveal(+x.i);
+    else if (x.t === "end" && ph === "pg" && ops) parSwitch();
+  }
+  function parReveal(i) {
+    var g = S.m.pg; if (!(i >= 0 && i < 25) || g.rev["c" + i]) return;
+    var c = g.key[i]; g.rev["c" + i] = c;
+    if (c === "x") return parEnd(g.turn === "r" ? "b" : "r");
+    if (c === "r" || c === "b") { g.rem[c]--; if (g.rem[c] === 0) return parEnd(c); }
+    if (c === g.turn) { g.left--; if (g.left > 0) return parPub("pg"); }
+    parSwitch();
+  }
+  function parSwitch() {
+    var g = S.m.pg; if (!g) return;
+    g.turn = g.turn === "r" ? "b" : "r"; g.clue = null; g.left = 0; g.qid = rid(); parPub("ps");
+  }
+  function parEnd(w) {
+    var g = S.m.pg;
+    parPub("pend", { winner: w, key: g.key.join("") });
+    put("/meta/status", "ended");
+  }
+  function parSend(a, st) {
+    a.pid = S.me; a.qid = st.qid;
+    if (S.role === "master") parAct(a); else put("/actions/" + rid(), a);
+    S.sig = ""; render();
+  }
+  function parView(st) {
+    var TN = { r: "Rossa", b: "Blu" }, t = st.teams || {}, cap = st.cap || {}, words = toArr(st.words), rev = st.rev || {}, rem = st.rem || {}, me = S.me, my = me ? t[me] : null;
+    var isCap = !!me && (cap.r === me || cap.b === me), pv = S.tree.priv, key = "", turn = st.turn, capT = cap[turn];
+    if (S.pq !== st.qid) { S.pq = st.qid; S.psel = null; }
+    if (st.phase === "pend") key = String(st.key || ""); else if (isCap && pv && pv.caps && pv.caps[me]) key = String(pv.key || "");
+    var myCap = !!me && capT === me, ops = !!my && my === turn && !isCap && st.phase === "pg", bar;
+    if (st.phase === "pend") bar = '<div class="tv-turnbar good">Vince la squadra ' + TN[st.winner] + "!</div>";
+    else if (st.phase === "ps") bar = myCap ? '<div class="tv-turnbar me">DAI L’INDIZIO</div>' : '<div class="tv-turnbar watch par-t' + turn + '">Squadra <b>' + TN[turn] + "</b>: il capitano <b>" + esc(pname(capT)) + "</b> pensa all’indizio</div>";
+    else bar = ops ? '<div class="tv-turnbar me">INDOVINA!</div>' : '<div class="tv-turnbar watch par-t' + turn + '">Tocca alla squadra <b>' + TN[turn] + "</b>" + (myCap ? " · sei il capitano: i compagni stanno scegliendo" : "") + "</div>";
+    var cells = words.map(function (w, i) {
+      var r = rev["c" + i], k = key.charAt(i);
+      return '<button type="button" class="par-c' + (r ? " rev " + r : (k ? " k-" + k : "")) + (ops && S.psel === i ? " sel" : "") + '" data-i="' + i + '"' + (ops && !r ? "" : " disabled") + ">" + esc(w) + "</button>";
+    }).join("");
+    var body = "";
+    if (st.clue) body += '<div class="par-clue"><span>Indizio</span><b>' + esc(st.clue.w) + "</b><em>" + st.clue.n + "</em><small>tentativi rimasti: " + st.left + "</small></div>";
+    body += '<div class="par-grid">' + cells + "</div>";
+    if (isCap && st.phase !== "pend") body += '<p class="tv-muted">Sei il capitano: i colori che vedi sulle parole sono visibili solo a te.</p>';
+    if (st.phase === "ps" && myCap) body += '<div class="par-form"><input class="tv-in" id="par-w" maxlength="20" placeholder="Il tuo indizio (una parola)" aria-label="Indizio"><select class="tv-in" id="par-n" aria-label="Quante parole">' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (n) { return '<option value="' + n + '">' + n + (n === 1 ? " parola" : " parole") + "</option>"; }).join("") + '</select><p class="tv-err" id="par-err" role="alert"></p><div class="tv-row"><button class="tv-btn" id="par-clue" type="button">Invia indizio</button></div></div>';
+    if (ops) body += '<div class="tv-row"><button class="tv-btn" id="par-conf" type="button"' + (S.psel == null ? " disabled" : "") + ">" + (S.psel == null ? "Scegli una parola" : "Scopri «" + esc(words[S.psel] || "") + "»") + '</button><button class="tv-btn ghost" id="par-end" type="button">Fine turno</button></div>';
+    var html = '<div class="tv-card dis-card">' + bar + body + "</div>";
+    if (S.role === "master") html += st.phase === "pend" ? '<div class="tv-row"><button class="tv-btn" id="tv-again" type="button">Nuova partita</button><button class="tv-btn ghost" id="tv-close" type="button">Chiudi la stanza</button></div>' : '<div class="tv-row"><button class="tv-btn ghost" id="tv-skipq" type="button">Passa il turno</button><button class="tv-btn ghost" id="tv-stop" type="button">Termina partita</button></div>';
+    var pl = S.tree.players || {}, off = toArr(st.off);
+    var teams = ["r", "b"].map(function (c) {
+      var mem = Object.keys(pl).filter(function (id) { return t[id] === c; }).sort(function (a, b) { return (pl[a].t || 0) - (pl[b].t || 0); });
+      return '<div class="par-team par-t' + c + '"><b>Squadra ' + TN[c] + '</b><span>' + (rem[c] != null ? rem[c] : "") + " da trovare</span><ul>" + mem.map(function (id) { return "<li" + (off.indexOf(id) >= 0 ? ' class="off"' : "") + ">" + esc(pl[id].name) + (id === me ? " (tu)" : "") + (cap[c] === id ? " · capitano" : "") + "</li>"; }).join("") + "</ul></div>";
+    }).join("");
+    return html + '<div class="par-teams">' + teams + "</div>";
+  }
+  function parMount(st) {
+    var g = function (id, fn) { var e = $(id); if (e) e.addEventListener("click", fn); };
+    $$(".par-c[data-i]").forEach(function (b) { b.addEventListener("click", function () { S.psel = +b.dataset.i; S.sig = ""; render(); }); });
+    g("#par-conf", function () { if (S.psel == null) return; var i = S.psel; S.psel = null; parSend({ t: "tap", i: i }, st); });
+    g("#par-end", function () { parSend({ t: "end" }, st); });
+    g("#par-clue", function () {
+      var w = $("#par-w").value.trim(), n = +$("#par-n").value, err = $("#par-err");
+      if (!w) { err.textContent = "Scrivi una parola."; return; }
+      if (/\s/.test(w)) { err.textContent = "L’indizio è una parola sola."; return; }
+      if (toArr(st.words).some(function (u, i) { return !(st.rev || {})["c" + i] && nrm(u) === nrm(w); })) { err.textContent = "Non puoi usare una parola che è sul tavolo."; return; }
+      parSend({ t: "clue", w: w, n: n }, st);
+    });
+  }
+
   /* ---------- Disegna e indovina ---------- */
   var DCOL = ["#111111", "#e03131", "#f08c00", "#f2d600", "#2f9e44", "#1c7ed6", "#7048e8", "#a0522d", "#ff8fb3", "#ffffff"], DW = [5, 12, 26];
   var D = { q: null, list: [], n: 0, g: 0, col: 0, wd: 1, ops: [], busy: false, cache: {}, raf: 0 };
@@ -714,10 +963,10 @@
       req("GET", c, "/meta").then(function (ex) {
         if (ex && n < 8) return attempt(n + 1);
         S.code = c; S.role = "master"; S.me = set.hostName ? "host" : null; S.name = set.hostName; LOCALCN = set.cn || null;
-        var room = { meta: { created: Date.now(), status: "lobby", secs: set.secs, cats: set.cats, cn: set.cn || null, bs: set.bs || null, bd: set.bd ? { age: set.bd.age } : null, cah: set.cah ? { giri: set.cah.giri } : null, dis: set.dis ? { giri: set.dis.giri, secs: set.dis.secs } : null, dw: set.dis && set.dis.dw.length ? set.dis.dw : null, cw: set.cah && set.cah.cw.length ? set.cah.cw : null, cb: set.cah && set.cah.cb.length ? set.cah.cb : null }, state: { phase: "lobby" }, hb: 0 };
+        var room = { meta: { created: Date.now(), status: "lobby", secs: set.secs, cats: set.cats, cn: set.cn || null, bs: set.bs || null, bd: set.bd ? { age: set.bd.age } : null, cah: set.cah ? { giri: set.cah.giri } : null, dis: set.dis ? { giri: set.dis.giri, secs: set.dis.secs } : null, who: set.who ? { count: set.who.count } : null, wq: set.who && set.who.wq.length ? set.who.wq : null, par: set.par ? { on: 1 } : null, dw: set.dis && set.dis.dw.length ? set.dis.dw : null, cw: set.cah && set.cah.cw.length ? set.cah.cw : null, cb: set.cah && set.cah.cb.length ? set.cah.cb : null }, state: { phase: "lobby" }, hb: 0 };
         if (set.hostName) room.players = { host: { name: set.hostName, t: Date.now(), n: 0, role: set.hostRole || null } };
         return req("PUT", c, "", room).then(function () {
-          S.m = { set: set, secs: set.secs, cats: set.cats.map(catById), custom: custom.slice(), banks: set.banks || null, bs: !!(set.bs || set.bd), bd: set.bd || null, cah: set.cah || null, dis: set.dis || null, seen: {}, off: [], wedges: {}, order: [], ti: 0, state: { phase: "lobby" } };
+          S.m = { set: set, secs: set.secs, cats: set.cats.map(catById), custom: custom.slice(), banks: set.banks || null, bs: !!(set.bs || set.bd), bd: set.bd || null, cah: set.cah || null, dis: set.dis || null, who: set.who || null, par: set.par || null, seen: {}, off: [], wedges: {}, order: [], ti: 0, state: { phase: "lobby" } };
           S.view = "lobby"; listen(); wake();
           S.hb = setInterval(function () { put("/hb", ++S.hbN); }, 8000);
           S.tick = setInterval(masterTick, 5000);
@@ -742,6 +991,8 @@
     if (ids.length < 2) return;
     if (m.cah) { if (ids.length < 3) return; return startCAH(ids); }
     if (m.dis) return startDIS(ids);
+    if (m.who) { if (ids.length < 3) return; return startWHO(ids); }
+    if (m.par) { if (ids.length < 4) return; return startPAR(ids); }
     if (m.bd) { var nf = ids.filter(function (i) { return pl[i].role === "f"; }).length; if (nf !== 1) return; }
     if (m.bs) return startBS(ids);
     m.order = ids; m.ti = 0; m.wedges = {}; ids.forEach(function (i) { m.wedges[i] = []; });
@@ -840,7 +1091,7 @@
       else if (now - s.t > 30000) off.push(id);
     });
     off.sort();
-    if (JSON.stringify(off) !== JSON.stringify(m.off.slice().sort())) { m.off = off; if (m.state.phase !== "lobby") publish({}); else put("/state/off", off.length ? off : null); if (m.bs && m.state.phase === "bq") bsCheck(); if (m.cah && m.cur) cahCheck(); if (m.dis && m.cur) disCheck(); }
+    if (JSON.stringify(off) !== JSON.stringify(m.off.slice().sort())) { m.off = off; if (m.state.phase !== "lobby") publish({}); else put("/state/off", off.length ? off : null); if (m.bs && m.state.phase === "bq") bsCheck(); if (m.cah && m.cur) cahCheck(); if (m.dis && m.cur) disCheck(); if (m.who && m.cur) whoCheck(); }
   }
   function processActions() {
     var a = S.tree.actions, m = S.m; if (!a || !m) return;
@@ -848,13 +1099,15 @@
       var x = a[k]; delete a[k]; del("/actions/" + k);
       if (m.cah) { if (x) cahAct(x); return; }
       if (m.dis) { if (x) disAct(x); return; }
+      if (m.who) { if (x) whoAct(x); return; }
+      if (m.par) { if (x) parAct(x); return; }
       if (m.bs) { if (x && m.cur && x.qid === m.cur.qid) bsVote(x.pid, +x.idx); return; }
       if (m.cur && !m.cur.done && x && x.pid === m.cur.pid && x.qid === m.cur.qid) resolve(+x.idx);
     });
   }
   function newGame() {
     var m = S.m; clearTimeout(m.to); m.cur = null; m.wedges = {}; m.order = [];
-    m.state = { phase: "lobby" }; put("/state", { phase: "lobby" }); put("/meta/status", "lobby");
+    m.state = { phase: "lobby" }; m.pg = null; put("/state", { phase: "lobby" }); put("/meta/status", "lobby"); del("/priv");
   }
   function closeRoom() {
     var m = S.m; if (m) { clearTimeout(m.to); clearTimeout(m.to2); }
@@ -963,6 +1216,8 @@
     var meta = S.tree.meta || {}, cats = toArr(meta.cats).map(catById), nf = ids.filter(function (i) { return pl[i].role === "f"; }).length;
     var link = location.origin + location.pathname + "?c=" + S.code;
     var html = '';
+    if (meta.who) html += '<div class="tv-card tv-bsh"><p class="tv-label">Indovina chi ha scritto cosa</p><h2>Chi è l’autore?</h2><p class="tv-muted">A ogni domanda tutti scrivono in segreto una risposta, poi si indovina chi ha scritto cosa. Punti a chi indovina e a chi riesce a ingannare gli altri.</p></div>';
+    if (meta.par) html += '<div class="tv-card tv-bsh"><p class="tv-label">Parole in comune</p><h2>Rossi contro Blu</h2><p class="tv-muted">Due squadre, 25 parole. I capitani danno un indizio di una parola e un numero, i compagni trovano le parole giuste. Attenzione alla parola nera!</p></div>';
     if (meta.dis) html += '<div class="tv-card tv-bsh"><p class="tv-label">Disegna e indovina</p><h2>Chi disegna meglio?</h2><p class="tv-muted">A turno uno disegna e gli altri vedono il disegno sul telefono. Chi disegna sceglie tra 4 parole di difficoltà diversa, gli altri indovinano a voce e alla fine è lui a indicare il vincitore.</p></div>';
     if (meta.cah) html += '<div class="tv-card tv-bsh"><p class="tv-label">Senza vergogna · vietato ai minori di 18 anni</p><h2>Il gioco delle risposte peggiori</h2><p class="tv-muted">Ogni turno uno di voi è il lettore: legge la carta nera, gli altri rispondono con una carta bianca. Poi si vota la risposta più divertente (non la propria). Linguaggio esplicito e humour nero.</p></div>';
     if (meta.bd) html += '<div class="tv-card tv-bsh"><p class="tv-label">Festa di compleanno</p><h2>' + esc(meta.bd.age) + ' anni!</h2><p class="tv-muted">Il festeggiato risponde in segreto alle domande su di lui, gli invitati cercano di indovinare. Tutti votano, senza limite di tempo: a ogni domanda si vedono le percentuali. 7 domande per categoria.</p></div>';
@@ -977,7 +1232,7 @@
     }
     html += '<div class="tv-card"><p class="tv-label">Giocatori (' + ids.length + ')</p><ul class="tv-score">' + ids.map(function (i) { return "<li><span class=\"tv-pn\">" + esc(pl[i].name) + (i === S.me ? " (tu)" : "") + (i === "host" ? " · master" : "") + (meta.bd ? (pl[i].role === "f" ? " · festeggiato" : pl[i].role === "i" ? " · invitato" : "") : "") + "</span></li>"; }).join("") + '</ul>' +
       (cats.length ? '<p class="tv-muted">Categorie: ' : '<p hidden>') + cats.map(function (c) { return '<span class="tv-dot" style="--cc:' + c.color + '"></span>' + esc(c.name); }).join(" &nbsp; ") + '</p></div>';
-    if (S.role === "master") html += '<div class="tv-row"><button class="tv-btn" id="tv-start" type="button"' + (ids.length < (meta.cah ? 3 : 2) || nf !== (meta.bd ? 1 : nf) ? " disabled" : "") + '>Avvia la partita</button><button class="tv-btn ghost" id="tv-close" type="button">Annulla</button></div>' + (meta.bd && nf !== 1 ? '<p class="tv-muted">' + (nf === 0 ? "Serve il festeggiato: deve scegliere «Sono il festeggiato»." : "C’è più di un festeggiato.") + "</p>" : (ids.length < (meta.cah ? 3 : 2) ? '<p class="tv-muted">Servono almeno ' + (meta.cah ? 3 : 2) + " giocatori.</p>" : ""));
+    if (S.role === "master") html += '<div class="tv-row"><button class="tv-btn" id="tv-start" type="button"' + (ids.length < (meta.par ? 4 : meta.cah || meta.who ? 3 : 2) || nf !== (meta.bd ? 1 : nf) ? " disabled" : "") + '>Avvia la partita</button><button class="tv-btn ghost" id="tv-close" type="button">Annulla</button></div>' + (meta.bd && nf !== 1 ? '<p class="tv-muted">' + (nf === 0 ? "Serve il festeggiato: deve scegliere «Sono il festeggiato»." : "C’è più di un festeggiato.") + "</p>" : (ids.length < (meta.par ? 4 : meta.cah || meta.who ? 3 : 2) ? '<p class="tv-muted">Servono almeno ' + (meta.par ? 4 : meta.cah || meta.who ? 3 : 2) + " giocatori.</p>" : ""));
     return html;
   }
 
@@ -1097,10 +1352,10 @@
       var h = S.tree.hb, ms = S.masterSeen, now = Date.now();
       if (ms.n !== h) { S.masterSeen = { n: h, t: now }; } else if (now - ms.t > 40000) masterOff = true;
     }
-    var sst = MODE === "dis" && st.phase === "dd" ? Object.assign({}, st, { off: null, order: null }) : st;
-    var sig = JSON.stringify([sst, S.dj, Object.keys(pl).map(function (i) { return [i, pl[i].name]; }), S.answered, S.net, masterOff, S.tree.meta && S.tree.meta.cats, S.sel, S.vsel, S.cv, S.tree.hands && S.tree.hands[S.me], S.tree.priv, S.tree.mine && S.tree.mine[S.me]]);
+    var sst = (MODE === "dis" && st.phase === "dd") || MODE === "par" ? Object.assign({}, st, { off: null, order: null }) : (MODE === "who" && st.phase === "wq" && S.me && !(st.wrote || {})[S.me] && S.wa !== st.qid) ? Object.assign({}, st, { wrote: null, off: null }) : st;
+    var sig = JSON.stringify([sst, S.dj, S.wa, S.gv, S.psel, Object.keys(pl).map(function (i) { return [i, pl[i].name]; }), S.answered, S.net, masterOff, S.tree.meta && S.tree.meta.cats, S.sel, S.vsel, S.cv, S.tree.hands && S.tree.hands[S.me], S.tree.priv, S.tree.mine && S.tree.mine[S.me]]);
     if (sig === S.sig) return; S.sig = sig;
-    var body = /^d[pdr]$|^dend$/.test(st.phase) ? disView(st) : /^c[prvs]$|^cend$/.test(st.phase) ? cahView(st) : st.phase === "bq" || st.phase === "br" ? bsGameView(st) : st.phase === "bend" ? bsEndView(st) : st.phase === "question" || st.phase === "reveal" ? gameView(st) : st.phase === "end" ? endView(st) : lobbyView();
+    var body = /^w[qgr]$|^wend$/.test(st.phase) ? whoView(st) : /^p[sg]$|^pend$/.test(st.phase) ? parView(st) : /^d[pdr]$|^dend$/.test(st.phase) ? disView(st) : /^c[prvs]$|^cend$/.test(st.phase) ? cahView(st) : st.phase === "bq" || st.phase === "br" ? bsGameView(st) : st.phase === "bend" ? bsEndView(st) : st.phase === "question" || st.phase === "reveal" ? gameView(st) : st.phase === "end" ? endView(st) : lobbyView();
     S.view = st.phase === "lobby" ? "lobby" : "game";
     shell((masterOff ? '<div class="tv-banner warn">Il master sembra offline: aspetta qualche istante.</div>' : "") + body);
     bind(st);
@@ -1109,16 +1364,18 @@
     var g = function (id, fn) { var e = $(id); if (e) e.addEventListener("click", fn); };
     g("#tv-start", startGame); g("#tv-again", newGame); g("#tv-close", closeRoom);
     g("#tv-stop", function () { if (confirm("Terminare la partita e chiudere la stanza?")) closeRoom(); });
-    g("#tv-skip", function () { if (S.m.dis) disNext(); else if (S.m.cah) cahNext(); else if (S.m.bs) askBS(); else next(S.m.cur && S.m.cur.ok); });
-    g("#tv-skipq", function () { if (S.m.dis) disForce(); else if (S.m.cah) cahForce(); else if (S.m.bs) bsReveal(); else resolve(-1); });
+    g("#tv-skip", function () { if (S.m.who) whoAdvance(); else if (S.m.dis) disNext(); else if (S.m.cah) cahNext(); else if (S.m.bs) askBS(); else next(S.m.cur && S.m.cur.ok); });
+    g("#tv-skipq", function () { if (S.m.who) whoForce(); else if (S.m.par) parSwitch(); else if (S.m.dis) disForce(); else if (S.m.cah) cahForce(); else if (S.m.bs) bsReveal(); else resolve(-1); });
     if (MODE === "dis") disMount(st);
+    if (MODE === "who") whoMount(st);
+    if (MODE === "par") parMount(st);
     $$(".cah-hand [data-c]").forEach(function (b) { b.addEventListener("click", function () { S.sel = +b.dataset.c; S.sig = ""; render(); }); });
     $$(".cah-ans[data-v]").forEach(function (b) { b.addEventListener("click", function () { S.vsel = +b.dataset.v; S.sig = ""; render(); }); });
     g("#cah-send", function () { if (S.sel == null) return; cahSend({ t: "pick", card: S.sel }, st); });
     g("#cah-show", function () { cahSend({ t: "show" }, st); });
     g("#cah-vote", function () { if (S.vsel == null) return; S.cv = st.qid; cahSend({ t: "vote", idx: S.vsel }, st); });
     g("#tv-copy", function () { var l = location.origin + location.pathname + "?c=" + S.code; (navigator.clipboard ? navigator.clipboard.writeText(l) : Promise.reject()).then(function () { $("#tv-copy").textContent = "Link copiato"; }).catch(function () { prompt("Copia questo link:", l); }); });
-    g("#tv-share", function () { navigator.share({ title: MODE === "bs" ? "Baby shower" : MODE === "bd" ? "Festa di compleanno" : MODE === "cah" ? "Senza vergogna" : MODE === "dis" ? "Disegna e indovina" : "Sfida a spicchi", text: "Gioca con me! Codice: " + S.code, url: location.origin + location.pathname + "?c=" + S.code }).catch(function () {}); });
+    g("#tv-share", function () { navigator.share({ title: MODE === "bs" ? "Baby shower" : MODE === "bd" ? "Festa di compleanno" : MODE === "cah" ? "Senza vergogna" : MODE === "dis" ? "Disegna e indovina" : MODE === "who" ? "Indovina chi ha scritto cosa" : MODE === "par" ? "Parole in comune" : "Sfida a spicchi", text: "Gioca con me! Codice: " + S.code, url: location.origin + location.pathname + "?c=" + S.code }).catch(function () {}); });
     $$(".tv-opt").forEach(function (b) {
       b.addEventListener("click", function () {
         if (st.phase === "bq") {

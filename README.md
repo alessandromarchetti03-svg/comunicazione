@@ -60,3 +60,9 @@ Gioco di carte per adulti (`TAVOLO_MODE = "cah"`), carte originali in `senzaverg
 Gioco in stile Pictionary (`TAVOLO_MODE = "dis"`), parole in `disegna-data.js`: 4 fasce (Facile 1 punto, Media 2, Difficile 3, Quasi impossibile 5), 76/76/70/70 parole.
 A turno uno disegna e sceglie tra 4 parole (una per fascia, può cambiarle una volta); gli altri vedono il disegno in diretta e indovinano a voce; chi disegna indica il vincitore. Il vincitore prende i punti della fascia, chi disegna metà (arrotondata per eccesso). Il master sceglie i giri, il tempo (60/90/120 s o nessuno) e può aggiungere parole sue (fascia Media).
 Il disegno viaggia come tratti di testo in `/draw/s/sN` (coordinate 0-1000 × 0-750), scritti solo da chi disegna e cancellati a inizio turno.
+
+## Indovina chi ha scritto cosa (pagina chi-ha-scritto.html)
+`TAVOLO_MODE = "who"`, domande in `chiscritto-data.js` (72 per tutti + 30 «piccanti»). A ogni domanda tutti scrivono in segreto una risposta (max 80 caratteri); poi le risposte (al massimo 8 per domanda) compaiono anonime una alla volta e ognuno indovina l'autore. +1 a chi indovina, e all'autore +1 per ogni persona ingannata. Il master sceglie 1-5 domande e può aggiungerne di sue. Servono almeno 3 giocatori.
+
+## Parole in comune (pagina parole-in-comune.html)
+`TAVOLO_MODE = "par"`, 382 parole in `paroleincomune-data.js`. Griglia 5×5, squadre Rossa e Blu sorteggiate (almeno 4 giocatori), un capitano per squadra che vede i colori (in `/priv`) e dà un indizio di una parola + un numero; i compagni toccano le parole (selezione + conferma), tentativi = numero + 1. Vince chi trova tutte le sue parole; la parola nera fa perdere. L'indizio non può essere una parola ancora sul tavolo. Il master può passare il turno.

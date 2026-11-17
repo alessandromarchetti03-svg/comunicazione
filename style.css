@@ -580,3 +580,25 @@ textarea.tv-in { resize: vertical; min-height: 84px; }
 .dis-opt.l0 { border-left: 10px solid #5fd08b; } .dis-opt.l1 { border-left: 10px solid #5aaee8; } .dis-opt.l2 { border-left: 10px solid #e8892f; } .dis-opt.l3 { border-left: 10px solid #e03131; }
 .dis-opt:hover { border-color: var(--amber); }
 .dis-win { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 8px; }
+
+/* Indovina chi ha scritto cosa / Parole in comune */
+.who-ans { margin: 14px 0; padding: 18px 20px; border-left: 6px solid var(--amber); background: rgba(255,255,255,.06); border-radius: 12px; font: 700 clamp(19px, 5vw, 24px)/1.35 var(--display); overflow-wrap: anywhere; }
+.who-opts { display: grid; gap: 10px; margin: 4px 0 8px; }
+.par-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 10px 0 14px; }
+.par-c { aspect-ratio: 1 / .72; min-width: 0; padding: 2px; border-radius: 10px; border: 3px solid transparent; background: #f4ecdc; color: #10142e; font: 800 clamp(9px, 2.6vw, 14px)/1.1 var(--sans); cursor: pointer; overflow-wrap: anywhere; hyphens: auto; display: grid; place-items: center; text-align: center; }
+.par-c:disabled { cursor: default; }
+.par-c.sel { border-color: var(--amber); box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 45%, transparent); transform: translateY(-2px); }
+.par-c.rev { color: #fff; border-color: transparent; }
+.par-c.rev.r { background: #e03131; } .par-c.rev.b { background: #1c7ed6; } .par-c.rev.n { background: #bdb3a0; color: #4a4437; } .par-c.rev.x { background: #04040a; }
+.par-c.k-r { border-color: #e03131; background: #fbe3e3; } .par-c.k-b { border-color: #1c7ed6; background: #dcebf8; } .par-c.k-n { background: #e6dfd0; } .par-c.k-x { border-color: #04040a; background: #5a5a66; color: #fff; }
+.par-clue { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin: 6px 0 4px; padding: 12px 16px; border-radius: 14px; background: rgba(255,255,255,.08); }
+.par-clue span { font: 700 12px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--on-night-2); }
+.par-clue b { font: 800 26px var(--display); color: var(--amber); } .par-clue em { font: 800 22px var(--display); font-style: normal; }
+.par-clue small { flex-basis: 100%; color: var(--on-night-2); }
+.par-form { display: grid; gap: 10px; margin: 0 0 8px; }
+.par-teams { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+.par-team { color: #fff; padding: 14px 16px; border-radius: 16px; background: var(--night); border-top: 6px solid var(--tc); display: grid; gap: 4px; }
+.par-team ul { margin: 6px 0 0; padding: 0; list-style: none; font-size: 15px; } .par-team li.off { opacity: .5; }
+.par-team span { color: var(--on-night-2); font-size: 13px; }
+.par-tr { --tc: #e03131; } .par-tb { --tc: #1c7ed6; }
+.tv-turnbar.par-tr b { color: #ff8f8f; } .tv-turnbar.par-tb b { color: #8fc4f5; }
