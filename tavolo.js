@@ -325,10 +325,10 @@
     }).join("");
     var myTurn = mine && st.phase === "question";
     var bar = st.phase === "question"
-      ? (mine ? '<div class="tv-turnbar me">TOCCA A TE!</div>' : '<div class="tv-turnbar">Tocca a <b>' + esc(pname(st.turn)) + "</b></div>")
+      ? (mine ? '<div class="tv-turnbar me">TOCCA A TE!</div>' : '<div class="tv-turnbar watch">Tocca a <b>' + esc(pname(st.turn)) + "</b></div>")
       : '<div class="tv-turnbar ' + (st.reveal && st.reveal.ok ? "good" : "bad") + '">' + (st.reveal && st.reveal.ok ? "Risposta giusta!" : (st.reveal && st.reveal.picked === -1 ? "Tempo scaduto" : "Risposta sbagliata")) + "</div>";
     if (myTurn && S.buzz !== st.qid) { S.buzz = st.qid; try { if (navigator.vibrate) navigator.vibrate([220, 110, 220]); } catch (e) {} }
-    var html = '<div class="tv-card tv-q' + (myTurn ? " mine" : "") + '" style="--cc:' + cat.color + '">' + bar + '<div class="tv-qhead"><span class="tv-chip">' + esc(cat.name) + "</span>" +
+    var html = '<div class="tv-card tv-q' + (myTurn ? " mine" : (st.phase === "question" ? " watch" : "")) + '" style="--cc:' + cat.color + '">' + bar + '<div class="tv-qhead"><span class="tv-chip">' + esc(cat.name) + "</span>" +
       (st.final ? '<span class="tv-turn"><b>Domanda decisiva</b></span>' : "") + "</div>" +
       '<h2 class="tv-qt">' + esc(st.q && st.q.t) + "</h2>" +
       (st.phase === "question" && st.secs > 0 ? '<div class="tv-timer"><i style="animation-duration:' + st.secs + "s;animation-delay:-" + qElapsed(st.qid).toFixed(1) + 's"></i></div>' : "") +

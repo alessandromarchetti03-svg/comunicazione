@@ -515,3 +515,8 @@ h1, h2, h3 { font-family: var(--display); font-weight: 900; line-height: 1.04; l
 @keyframes tvpulse { 50% { transform: scale(1.03); } }
 @keyframes tvglow { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--amber) 25%, transparent), 0 20px 50px -10px rgba(232,137,47,.6); } }
 @media (prefers-reduced-motion: reduce) { .tv-turnbar.me, .tv-q.mine { animation: none; } }
+
+/* chi guarda (master compreso): nome del giocatore di turno ben evidente */
+.tv-turnbar.watch { background: var(--night-2); font-size: clamp(18px, 5vw, 24px); padding: 14px 24px; color: var(--on-night-2); }
+.tv-turnbar.watch b { color: var(--amber); font-weight: 800; }
+.tv-q.watch { box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 70%, transparent); }
