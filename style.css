@@ -539,3 +539,21 @@ h1, h2, h3 { font-family: var(--display); font-weight: 900; line-height: 1.04; l
 .tv-vchip.off { text-decoration: line-through; }
 .tv-rank { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, #fff 14%, transparent); font-weight: 800; font-size: 13px; }
 #tv-role .tv-big:not(.alt) { background: var(--night-2); }
+
+/* Senza vergogna: carte */
+.cah-card { padding-top: 0; }
+.cah-black { background: #04040a; color: #fff; border: 2px solid rgba(255,255,255,.28); border-radius: 18px; padding: 22px 20px 16px; margin: 6px 0 18px; box-shadow: 0 14px 34px -14px rgba(0,0,0,.7); }
+.cah-black p { margin: 0 0 14px; font: 800 clamp(20px, 5vw, 26px)/1.28 var(--display); letter-spacing: -.01em; }
+.cah-black small { color: rgba(255,255,255,.6); font-size: 13px; }
+.cah-black small b { color: var(--amber); }
+.cah-blank { display: inline-block; min-width: 3.2em; border-bottom: 3px solid var(--amber); transform: translateY(-3px); }
+.cah-hand { display: grid; gap: 10px; margin: 0 0 6px; }
+.cah-white { text-align: left; background: #fff; color: #10142e; border: 3px solid transparent; border-radius: 16px; padding: 16px 18px; font: 700 17px/1.35 var(--sans); cursor: pointer; }
+div.cah-white { cursor: default; }
+.cah-white:disabled { cursor: default; opacity: .6; }
+.cah-white.sel { border-color: var(--amber); box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 40%, transparent); transform: translateY(-2px); }
+.cah-white.own { opacity: .45; }
+.cah-white.win { border-color: #5fd08b; box-shadow: 0 0 0 4px color-mix(in srgb, #5fd08b 45%, transparent); }
+.cah-white small.tv-you { display: block; margin-top: 6px; color: #b4561a; }
+.cah-white b { color: #b4561a; margin-right: 4px; }
+textarea.tv-in { resize: vertical; min-height: 84px; }

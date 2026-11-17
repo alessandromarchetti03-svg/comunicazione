@@ -6,7 +6,7 @@
   "use strict";
   var CATS = window.TAVOLO_CATS || [], BANK = window.TAVOLO_Q || {}, CFG = window.TAVOLO_CONFIG || {};
   var DB = (CFG.db || "").replace(/\/$/, "");
-  var MODE = window.TAVOLO_MODE === "bs" ? "bs" : window.TAVOLO_MODE === "bd" ? "bd" : "quiz";
+  var MODE = window.TAVOLO_MODE === "bs" ? "bs" : window.TAVOLO_MODE === "bd" ? "bd" : window.TAVOLO_MODE === "cah" ? "cah" : "quiz";
   var NOI = { id: "noi", name: "Su di noi", color: "#ffffff" };
   var root = document.getElementById("tv");
   if (!root) return;
@@ -21,7 +21,7 @@
   var CH = "ABCDEFGHJKMNPQRSTUVWXYZ";
   function randCode() { var s = ""; for (var i = 0; i < 4; i++) s += CH[rnd(CH.length)]; return s; }
   var BS = window.TAVOLO_BS || { cats: [], Q: {}, names: { f: [], m: [] } }, LOCALCN = null;
-  var BD = window.TAVOLO_BD || { cats: [] };
+  var BD = window.TAVOLO_BD || { cats: [] }, CAH = window.TAVOLO_CAH || { black: [], white: [] };
   function bsCat(id) { return BS.cats.concat(BD.cats).filter(function (c) { return c.id === id; })[0]; }
   function catById(id) {
     var b = bsCat(id);
@@ -79,10 +79,10 @@
     if (q) { return joinForm(q[1].toUpperCase()); }
     shell(
       '<div class="tv-home">' +
-      '<button class="tv-big" id="tv-new" type="button"><b>' + (MODE === "bs" || MODE === "bd" ? "Crea la festa" : "Crea una partita") + '</b><span>' + (MODE === "bs" ? "Sei il master: scrivi i nomi, scegli le categorie e invita gli ospiti." : MODE === "bd" ? "Sei il master: imposta gli anni del festeggiato, le categorie e invita gli ospiti." : "Sei il master: scegli le regole e invita gli amici.") + '</span></button>' +
+      '<button class="tv-big" id="tv-new" type="button"><b>' + (MODE === "bs" || MODE === "bd" ? "Crea la festa" : "Crea una partita") + '</b><span>' + (MODE === "bs" ? "Sei il master: scrivi i nomi, scegli le categorie e invita gli ospiti." : MODE === "bd" ? "Sei il master: imposta gli anni del festeggiato, le categorie e invita gli ospiti." : MODE === "cah" ? "Sei il master: scegli i giri e invita gli amici (servono almeno 3 giocatori)." : "Sei il master: scegli le regole e invita gli amici.") + '</span></button>' +
       '<button class="tv-big alt" id="tv-join" type="button"><b>Entra con un codice</b><span>Hai ricevuto un codice o un QR? Entra qui.</span></button>' +
       '</div>');
-    $("#tv-new").addEventListener("click", MODE === "bs" ? setupBS : MODE === "bd" ? setupBD : setup);
+    $("#tv-new").addEventListener("click", MODE === "bs" ? setupBS : MODE === "bd" ? setupBD : MODE === "cah" ? setupCAH : setup);
     $("#tv-join").addEventListener("click", function () { joinForm(""); });
   }
   function cleanup() {
@@ -300,6 +300,183 @@
     });
   }
 
+  /* ---------- Senza vergogna: gioco di carte 18+ ---------- */
+  function cahW() { return CAH.white.concat(toArr(S.tree.meta && S.tree.meta.cw)); }
+  function cahB() { return CAH.black.concat(toArr(S.tree.meta && S.tree.meta.cb)); }
+  function mapOf(o) { var r = {}; Object.keys(o).forEach(function (k) { r[k] = true; }); return r; }
+  function cahDraw(m) { if (!m.deck.length) { m.deck = shuffle(m.disc); m.disc = []; } return m.deck.pop(); }
+  function setupCAH() {
+    S.view = "setup";
+    shell(
+      '<form class="tv-card" id="tv-form" autocomplete="off">' +
+      '<p class="tv-label">Vietato ai minori di 18 anni</p><h2>Senza vergogna</h2>' +
+      '<p class="tv-muted">Ogni turno uno di voi fa il lettore: legge la carta nera, gli altri scelgono una carta bianca per completarla. Poi si votano le risposte, senza poter votare la propria. Linguaggio esplicito e humour nero.</p>' +
+      '<label class="tv-label" for="tv-giri">Quanti giri?</label><select class="tv-in" id="tv-giri"><option value="1">1 giro: ognuno legge una volta</option><option value="2">2 giri</option><option value="3">3 giri</option></select>' +
+      '<details class="tv-det"><summary>Aggiungi carte tue (facoltativo)</summary>' +
+      '<p class="tv-muted">Una per riga. Nelle carte nere scrivi «_____» dove va la risposta.</p>' +
+      '<label class="tv-label" for="tv-cb">Carte nere</label><textarea class="tv-in" id="tv-cb" rows="3" maxlength="1500" placeholder="Il regalo peggiore per Marco: _____"></textarea>' +
+      '<label class="tv-label" for="tv-cw">Carte bianche</label><textarea class="tv-in" id="tv-cw" rows="4" maxlength="2000" placeholder="La macchina di Luca"></textarea></details>' +
+      '<label class="tv-check solo"><input type="checkbox" id="tv-hp" checked><span>Gioco anch’io, su questo dispositivo</span></label>' +
+      '<input class="tv-in" id="tv-hname" maxlength="16" placeholder="Il tuo nome" aria-label="Il tuo nome">' +
+      '<label class="tv-check solo"><input type="checkbox" id="tv-adult"><span>Confermo di essere maggiorenne e che tutti i presenti hanno almeno 18 anni.</span></label>' +
+      '<p class="tv-err" id="tv-err" role="alert"></p>' +
+      '<div class="tv-row"><button class="tv-btn" type="submit">Crea partita</button><button class="tv-btn ghost" id="tv-back" type="button">Indietro</button></div></form>');
+    $("#tv-back").addEventListener("click", goHome);
+    $("#tv-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var err = $("#tv-err"), hp = $("#tv-hp").checked, hn = $("#tv-hname").value.trim();
+      if (!$("#tv-adult").checked) { err.textContent = "Conferma che tutti i presenti sono maggiorenni."; return; }
+      if (hp && !hn) { err.textContent = "Scrivi il tuo nome, oppure togli la spunta."; return; }
+      function lines(id, max) { return $(id).value.split("\n").map(function (x) { return x.trim().slice(0, max); }).filter(Boolean).slice(0, 30); }
+      var cb = lines("#tv-cb", 140).filter(function (x) { return /_{3,}/.test(x) || /\?/.test(x); }), cw = lines("#tv-cw", 80);
+      createRoom({ cats: [], secs: 0, hostName: hp ? hn : "", cah: { giri: +$("#tv-giri").value, cb: cb, cw: cw } });
+    });
+  }
+  function startCAH(ids) {
+    var m = S.m, W = cahW(), B = cahB();
+    m.order = ids; m.wedges = {}; m.score = {}; ids.forEach(function (i) { m.score[i] = 0; });
+    m.deck = shuffle(range(W.length)); m.disc = []; m.bdeck = shuffle(range(B.length)); m.hands = {}; m.ri = -1; m.cur = null;
+    ids.forEach(function (id) { m.hands[id] = []; for (var k = 0; k < 7; k++) m.hands[id].push(cahDraw(m)); });
+    put("/hands", m.hands); del("/priv"); del("/mine");
+    put("/meta/status", "playing");
+    cahNext();
+  }
+  function cahNext() {
+    var m = S.m; clearTimeout(m.to); m.ri++;
+    var n = m.order.length, total = n * (m.cah.giri || 1), tries = 0, rd;
+    while (tries < n && m.off.indexOf(m.order[m.ri % n]) >= 0) { m.ri++; tries++; }
+    if (m.ri >= total) return cahEnd();
+    rd = m.order[m.ri % n];
+    if (!m.bdeck.length) m.bdeck = shuffle(range(cahB().length));
+    m.cur = { qid: rid(), reader: rd, black: m.bdeck.pop(), picks: {}, votes: {}, subs: null, stage: "p" };
+    del("/priv"); del("/mine");
+    publish({ phase: "cp", qid: m.cur.qid, reader: rd, black: m.cur.black, rn: m.ri + 1, rt: total, picked: null, voted: null, answers: null, reveal: null, scores: m.score, winners: null });
+  }
+  function cahAct(x) {
+    var m = S.m, c = m.cur; if (!c || x.qid !== c.qid) return;
+    if (x.t === "pick") cahPick(x.pid, +x.card);
+    else if (x.t === "show") { if (x.pid === c.reader) cahShow(); }
+    else if (x.t === "vote") cahVote(x.pid, +x.idx);
+  }
+  function cahPick(pid, card) {
+    var m = S.m, c = m.cur;
+    if (!c || c.stage !== "p" || pid === c.reader || c.picks[pid] !== undefined || !(S.tree.players || {})[pid]) return;
+    var h = m.hands[pid], pos = h ? h.indexOf(card) : -1; if (pos < 0) return;
+    c.picks[pid] = card; h.splice(pos, 1); h.push(cahDraw(m));
+    put("/hands/" + pid, h); put("/mine/" + pid, c.qid + ":" + card);
+    publish({ picked: mapOf(c.picks) }); cahCheck();
+  }
+  function cahOnline(m, skipReader) {
+    return m.order.filter(function (id) { return m.off.indexOf(id) < 0 && !(skipReader && id === m.cur.reader); });
+  }
+  function cahCheck() {
+    var m = S.m, c = m && m.cur; if (!c) return;
+    if (c.stage === "p") { var need = cahOnline(m, true); if (need.length && need.every(function (id) { return c.picks[id] !== undefined; })) cahRead(); }
+    else if (c.stage === "v") { var nv = cahOnline(m, false); if (nv.length && nv.every(function (id) { return c.votes[id] !== undefined; })) cahReveal(); }
+  }
+  function cahRead() {
+    var m = S.m, c = m.cur, ids = shuffle(Object.keys(c.picks));
+    if (!ids.length) return cahNext();
+    c.stage = "r"; c.subs = ids.map(function (p) { return { pid: p, card: c.picks[p] }; });
+    put("/priv", { to: c.reader, qid: c.qid, a: c.subs.map(function (s) { return s.card; }) });
+    publish({ phase: "cr" });
+  }
+  function cahShow() {
+    var m = S.m, c = m.cur; if (!c || c.stage !== "r") return;
+    c.stage = "v"; del("/priv");
+    publish({ phase: "cv", answers: c.subs.map(function (s) { return s.card; }), voted: null });
+  }
+  function cahVote(pid, idx) {
+    var m = S.m, c = m.cur;
+    if (!c || c.stage !== "v" || c.votes[pid] !== undefined || !(S.tree.players || {})[pid] || !c.subs[idx] || c.subs[idx].pid === pid) return;
+    c.votes[pid] = idx; publish({ voted: mapOf(c.votes) }); cahCheck();
+  }
+  function cahReveal() {
+    var m = S.m, c = m.cur; if (!c || c.stage !== "v") return; c.stage = "s";
+    var cnt = c.subs.map(function () { return 0; }), win = [], best = 0;
+    Object.keys(c.votes).forEach(function (v) { cnt[c.votes[v]]++; });
+    cnt.forEach(function (x) { if (x > best) best = x; });
+    cnt.forEach(function (x, i) { if (best > 0 && x === best) { win.push(i); m.score[c.subs[i].pid]++; } });
+    Object.keys(c.picks).forEach(function (p) { m.disc.push(c.picks[p]); });
+    publish({ phase: "cs", reveal: { authors: c.subs.map(function (s) { return s.pid; }), votes: cnt, win: win }, scores: m.score });
+    m.to = setTimeout(cahNext, 12000);
+  }
+  function cahForce() {
+    var m = S.m, c = m.cur; if (!c) return;
+    if (c.stage === "p") cahRead(); else if (c.stage === "r") cahShow(); else if (c.stage === "v") cahReveal(); else cahNext();
+  }
+  function cahEnd() {
+    var m = S.m, best = -1, w = {}; m.cur = null;
+    m.order.forEach(function (id) { if (m.score[id] > best) best = m.score[id]; });
+    m.order.forEach(function (id) { if (m.score[id] === best) w[id] = true; });
+    publish({ phase: "cend", scores: m.score, winners: w, reveal: null, voted: null, answers: null });
+    put("/meta/status", "ended");
+  }
+  function cahSend(a, st) {
+    a.pid = S.me; a.qid = st.qid;
+    if (S.role === "master") cahAct(a); else put("/actions/" + rid(), a);
+    S.sig = ""; render();
+  }
+  function cahBlack(st) {
+    var t = esc(cahB()[st.black] || "").replace(/_{3,}/g, '<span class="cah-blank"></span>');
+    return '<div class="cah-black"><p>' + t + '</p><small>Turno ' + st.rn + " di " + st.rt + " · Lettore: <b>" + esc(pname(st.reader)) + (st.reader === S.me ? " (tu)" : "") + "</b></small></div>";
+  }
+  function cahChips(ids, done, off) {
+    return '<div class="tv-vchips">' + ids.map(function (id) { return '<span class="tv-vchip' + (done[id] ? " on" : "") + (off.indexOf(id) >= 0 ? " off" : "") + '">' + esc(pname(id)) + (done[id] ? " ✓" : "") + "</span>"; }).join("") + "</div>";
+  }
+  function cahScore(st, final) {
+    var sc = st.scores || {}, pl = S.tree.players || {}, w = st.winners || {}, off = toArr(st.off);
+    var ids = Object.keys(pl).sort(function (a, b) { return (sc[b] || 0) - (sc[a] || 0) || (pl[a].t || 0) - (pl[b].t || 0); });
+    return '<ul class="tv-score">' + ids.map(function (id, i) {
+      return '<li class="' + (final && w[id] ? "turn " : "") + (off.indexOf(id) >= 0 ? "off" : "") + '"><span class="tv-rank">' + (i + 1) + '</span><span class="tv-pn">' + esc(pl[id].name) + (id === S.me ? " (tu)" : "") + (off.indexOf(id) >= 0 ? " · offline" : "") + '</span><span class="tv-pc">' + (sc[id] || 0) + "</span></li>";
+    }).join("") + "</ul>";
+  }
+  function cahView(st) {
+    if (st.phase === "cend") {
+      var pl0 = S.tree.players || {}, wn = Object.keys(st.winners || {}).map(function (i) { return pl0[i] ? pl0[i].name : "?"; });
+      var h0 = '<div class="tv-card tv-end"><p class="tv-label">Partita finita</p><h2>' + (wn.length === 1 ? "Vince " + esc(wn[0]) + "!" : "Pari merito: " + esc(wn.join(" e ")) + "!") + '</h2><p class="tv-muted">Il più divertente, o il più depravato, della serata.</p></div><div class="tv-card"><p class="tv-label">Classifica</p>' + cahScore(st, true) + "</div>";
+      if (S.role === "master") h0 += '<div class="tv-row"><button class="tv-btn" id="tv-again" type="button">Nuova partita</button><button class="tv-btn ghost" id="tv-close" type="button">Chiudi la stanza</button></div>';
+      return h0 + '<p class="tv-muted">Il master può avviare una nuova partita.</p>';
+    }
+    if (S.selQ !== st.qid) { S.selQ = st.qid; S.sel = null; S.vsel = null; }
+    var W = cahW(), pl = S.tree.players || {}, off = toArr(st.off), rd = st.reader, isR = !!S.me && S.me === rd;
+    var ids = Object.keys(pl).sort(function (a, b) { return (pl[a].t || 0) - (pl[b].t || 0); }), pickers = ids.filter(function (i) { return i !== rd; });
+    var mine = S.tree.mine && S.me ? String(S.tree.mine[S.me] || "") : "", mineQ = mine.split(":")[0] === st.qid, mineCard = mineQ ? +mine.split(":")[1] : -1;
+    var html = '<div class="tv-card cah-card">', bar = "", body = "";
+    if (st.phase === "cp") {
+      var picked = st.picked || {};
+      if (isR) { bar = '<div class="tv-turnbar me">SEI IL LETTORE</div>'; body = '<p class="tv-muted">Leggi ad alta voce la carta nera. Gli altri scelgono la risposta: ' + Object.keys(picked).length + " su " + pickers.length + ".</p>" + cahChips(pickers, picked, off); }
+      else if (!S.me) { bar = '<div class="tv-turnbar watch">Scelgono: <b>' + Object.keys(picked).length + "</b> su " + pickers.length + "</div>"; body = cahChips(pickers, picked, off); }
+      else if (mineQ) { bar = '<div class="tv-turnbar watch">Risposta inviata ✓</div>'; body = '<p class="tv-muted">Aspetto gli altri…</p>' + cahChips(pickers, picked, off); }
+      else {
+        bar = '<div class="tv-turnbar me">SCEGLI LA RISPOSTA</div>';
+        var hand = toArr((S.tree.hands || {})[S.me]);
+        body = '<div class="cah-hand">' + hand.map(function (c) { return '<button type="button" class="cah-white' + (S.sel === c ? " sel" : "") + '" data-c="' + c + '">' + esc(W[c] || "") + "</button>"; }).join("") + "</div>" +
+          '<div class="tv-row"><button class="tv-btn" id="cah-send" type="button"' + (S.sel == null ? " disabled" : "") + ">Invia questa risposta</button></div>";
+      }
+    } else if (st.phase === "cr") {
+      var pv = S.tree.priv;
+      if (isR) {
+        bar = '<div class="tv-turnbar me">LEGGI LE RISPOSTE</div>';
+        body = pv && pv.qid === st.qid ? '<p class="tv-muted">Leggile ad alta voce, una alla volta. Gli altri non le vedono ancora.</p><div class="cah-hand">' + toArr(pv.a).map(function (c, i) { return '<div class="cah-white"><b>' + (i + 1) + ".</b> " + esc(W[c] || "") + "</div>"; }).join("") + '</div><div class="tv-row"><button class="tv-btn" id="cah-show" type="button">Ho letto tutto: mostra a tutti</button></div>' : '<p class="tv-muted">Carico le risposte…</p>';
+      } else { bar = '<div class="tv-turnbar watch"><b>' + esc(pname(rd)) + "</b> sta leggendo le risposte</div>"; body = '<p class="tv-muted">Ascolta bene: tra poco le vedrai e potrai votare.</p>'; }
+    } else if (st.phase === "cv") {
+      var ans = toArr(st.answers), voted = st.voted || {}, iVoted = !!voted[S.me] || S.cv === st.qid;
+      bar = !S.me ? '<div class="tv-turnbar watch">Votano: <b>' + Object.keys(voted).length + "</b> su " + ids.length + "</div>" : (iVoted ? '<div class="tv-turnbar watch">Voto inviato ✓</div>' : '<div class="tv-turnbar me">VOTA LA PIÙ DIVERTENTE</div>');
+      body = '<div class="cah-hand">' + ans.map(function (c, i) {
+        var own = mineQ && c === mineCard, dis = !S.me || iVoted || own;
+        return '<button type="button" class="cah-white cah-ans' + (S.vsel === i ? " sel" : "") + (own ? " own" : "") + '" data-v="' + i + '"' + (dis ? " disabled" : "") + ">" + esc(W[c] || "") + (own ? ' <small class="tv-you">la tua carta</small>' : "") + "</button>";
+      }).join("") + "</div>" + (S.me && !iVoted ? '<div class="tv-row"><button class="tv-btn" id="cah-vote" type="button"' + (S.vsel == null ? " disabled" : "") + ">Vota questa</button></div><p class=\"tv-muted\">Non puoi votare la tua carta.</p>" : cahChips(ids, voted, off));
+    } else {
+      var rv = st.reveal || {}, au = toArr(rv.authors), vo = toArr(rv.votes), wi = toArr(rv.win), an = toArr(st.answers);
+      bar = '<div class="tv-turnbar good">' + (wi.length ? (wi.length > 1 ? "Pareggio! Vincono in " + wi.length : "Vince " + esc(pname(au[wi[0]]))) : "Nessun voto") + "</div>";
+      body = '<div class="cah-hand">' + an.map(function (c, i) { return '<div class="cah-white' + (wi.indexOf(i) >= 0 ? " win" : "") + '">' + esc(W[c] || "") + '<small class="tv-you">' + esc(pname(au[i])) + " · " + (vo[i] || 0) + (vo[i] === 1 ? " voto" : " voti") + (wi.indexOf(i) >= 0 ? " · +1 punto" : "") + "</small></div>"; }).join("") + "</div>";
+    }
+    html += bar + cahBlack(st) + body + "</div>";
+    if (S.role === "master") html += '<div class="tv-row">' + (st.phase === "cs" ? '<button class="tv-btn" id="tv-skip" type="button">Continua</button>' : '<button class="tv-btn ghost" id="tv-skipq" type="button">Passa avanti</button>') + '<button class="tv-btn ghost" id="tv-stop" type="button">Termina partita</button></div>';
+    return html + '<div class="tv-card"><p class="tv-label">Punteggi</p>' + cahScore(st, false) + "</div>";
+  }
+
   /* ---------- master: stanza ---------- */
   function createRoom(set) {
     var btn = $("#tv-form button[type=submit]"); if (btn) btn.disabled = true;
@@ -308,10 +485,10 @@
       req("GET", c, "/meta").then(function (ex) {
         if (ex && n < 8) return attempt(n + 1);
         S.code = c; S.role = "master"; S.me = set.hostName ? "host" : null; S.name = set.hostName; LOCALCN = set.cn || null;
-        var room = { meta: { created: Date.now(), status: "lobby", secs: set.secs, cats: set.cats, cn: set.cn || null, bs: set.bs || null, bd: set.bd ? { age: set.bd.age } : null }, state: { phase: "lobby" }, hb: 0 };
+        var room = { meta: { created: Date.now(), status: "lobby", secs: set.secs, cats: set.cats, cn: set.cn || null, bs: set.bs || null, bd: set.bd ? { age: set.bd.age } : null, cah: set.cah ? { giri: set.cah.giri } : null, cw: set.cah && set.cah.cw.length ? set.cah.cw : null, cb: set.cah && set.cah.cb.length ? set.cah.cb : null }, state: { phase: "lobby" }, hb: 0 };
         if (set.hostName) room.players = { host: { name: set.hostName, t: Date.now(), n: 0, role: set.hostRole || null } };
         return req("PUT", c, "", room).then(function () {
-          S.m = { set: set, secs: set.secs, cats: set.cats.map(catById), custom: custom.slice(), banks: set.banks || null, bs: !!(set.bs || set.bd), bd: set.bd || null, seen: {}, off: [], wedges: {}, order: [], ti: 0, state: { phase: "lobby" } };
+          S.m = { set: set, secs: set.secs, cats: set.cats.map(catById), custom: custom.slice(), banks: set.banks || null, bs: !!(set.bs || set.bd), bd: set.bd || null, cah: set.cah || null, seen: {}, off: [], wedges: {}, order: [], ti: 0, state: { phase: "lobby" } };
           S.view = "lobby"; listen(); wake();
           S.hb = setInterval(function () { put("/hb", ++S.hbN); }, 8000);
           S.tick = setInterval(masterTick, 5000);
@@ -334,6 +511,7 @@
     var m = S.m, pl = S.tree.players || {};
     var ids = Object.keys(pl).sort(function (a, b) { return (pl[a].t || 0) - (pl[b].t || 0); });
     if (ids.length < 2) return;
+    if (m.cah) { if (ids.length < 3) return; return startCAH(ids); }
     if (m.bd) { var nf = ids.filter(function (i) { return pl[i].role === "f"; }).length; if (nf !== 1) return; }
     if (m.bs) return startBS(ids);
     m.order = ids; m.ti = 0; m.wedges = {}; ids.forEach(function (i) { m.wedges[i] = []; });
@@ -432,12 +610,13 @@
       else if (now - s.t > 30000) off.push(id);
     });
     off.sort();
-    if (JSON.stringify(off) !== JSON.stringify(m.off.slice().sort())) { m.off = off; if (m.state.phase !== "lobby") publish({}); else put("/state/off", off.length ? off : null); if (m.bs && m.state.phase === "bq") bsCheck(); }
+    if (JSON.stringify(off) !== JSON.stringify(m.off.slice().sort())) { m.off = off; if (m.state.phase !== "lobby") publish({}); else put("/state/off", off.length ? off : null); if (m.bs && m.state.phase === "bq") bsCheck(); if (m.cah && m.cur) cahCheck(); }
   }
   function processActions() {
     var a = S.tree.actions, m = S.m; if (!a || !m) return;
     Object.keys(a).forEach(function (k) {
       var x = a[k]; delete a[k]; del("/actions/" + k);
+      if (m.cah) { if (x) cahAct(x); return; }
       if (m.bs) { if (x && m.cur && x.qid === m.cur.qid) bsVote(x.pid, +x.idx); return; }
       if (m.cur && !m.cur.done && x && x.pid === m.cur.pid && x.qid === m.cur.qid) resolve(+x.idx);
     });
@@ -468,7 +647,17 @@
       if (!/^[A-Z]{4}$/.test(c)) { err.textContent = "Il codice ha 4 lettere."; return; }
       if (!n) { err.textContent = "Scrivi il tuo nome."; return; }
       var b = $("#tv-jf button[type=submit]"); b.disabled = true;
-      joinRoom(c, n).catch(function (ex) { b.disabled = false; if (ex && ex.needRole) return roleForm(c, n); err.textContent = ex && ex.message && ex.message.indexOf("HTTP") < 0 && ex.message !== "Failed to fetch" ? ex.message : "Non riesco a collegarmi. Riprova."; });
+      joinRoom(c, n).catch(function (ex) { b.disabled = false; if (ex && ex.needRole) return roleForm(c, n); if (ex && ex.needAdult) return adultForm(c, n); err.textContent = ex && ex.message && ex.message.indexOf("HTTP") < 0 && ex.message !== "Failed to fetch" ? ex.message : "Non riesco a collegarmi. Riprova."; });
+    });
+  }
+  function adultForm(c, n) {
+    S.view = "adult";
+    shell('<div class="tv-card" id="tv-adultc"><p class="tv-label">Vietato ai minori di 18 anni</p><h2>Gioco per adulti</h2><p class="tv-muted">Questo gioco contiene linguaggio esplicito, humour nero e temi per adulti. Entra solo se hai almeno 18 anni.</p>' +
+      '<p class="tv-err" id="tv-err" role="alert"></p><div class="tv-row"><button class="tv-btn" id="tv-yes" type="button">Ho almeno 18 anni, entra</button><button class="tv-btn ghost" id="tv-no" type="button">Esci</button></div></div>');
+    $("#tv-no").addEventListener("click", function () { history.replaceState(null, "", location.pathname); goHome(); });
+    $("#tv-yes").addEventListener("click", function () {
+      $("#tv-yes").disabled = true;
+      joinRoom(c, n, null, true).catch(function (ex) { $("#tv-yes").disabled = false; $("#tv-err").textContent = ex && ex.message && ex.message.indexOf("HTTP") < 0 && ex.message !== "Failed to fetch" ? ex.message : "Non riesco a collegarmi. Riprova."; });
     });
   }
   function roleForm(c, n) {
@@ -485,7 +674,7 @@
       });
     });
   }
-  function joinRoom(c, nm, role) {
+  function joinRoom(c, nm, role, adult) {
     return Promise.all([req("GET", c, "/meta"), req("GET", c, "/players"), req("GET", c, "/state/phase")]).then(function (r) {
       var meta = r[0], pl = r[1] || {}, phase = r[2];
       if (!meta) throw new Error("Codice non trovato. Controlla le lettere.");
@@ -497,6 +686,7 @@
       } else {
         if (phase && phase !== "lobby") throw new Error("La partita è già iniziata.");
         if (ids.length >= 20) throw new Error("La stanza è piena.");
+        if (meta.cah && !adult) { var ae = new Error("adult"); ae.needAdult = true; throw ae; }
         if (meta.bd) {
           if (!role) { var ne = new Error("role"); ne.needRole = true; throw ne; }
           if (role === "f") { var fe = ids.filter(function (i) { return pl[i].role === "f"; })[0]; if (fe) throw new Error("Il festeggiato c’è già: " + pl[fe].name + ".");}
@@ -542,6 +732,7 @@
     var meta = S.tree.meta || {}, cats = toArr(meta.cats).map(catById), nf = ids.filter(function (i) { return pl[i].role === "f"; }).length;
     var link = location.origin + location.pathname + "?c=" + S.code;
     var html = '';
+    if (meta.cah) html += '<div class="tv-card tv-bsh"><p class="tv-label">Senza vergogna · vietato ai minori di 18 anni</p><h2>Il gioco delle risposte peggiori</h2><p class="tv-muted">Ogni turno uno di voi è il lettore: legge la carta nera, gli altri rispondono con una carta bianca. Poi si vota la risposta più divertente (non la propria). Linguaggio esplicito e humour nero.</p></div>';
     if (meta.bd) html += '<div class="tv-card tv-bsh"><p class="tv-label">Festa di compleanno</p><h2>' + esc(meta.bd.age) + ' anni!</h2><p class="tv-muted">Il festeggiato risponde in segreto alle domande su di lui, gli invitati cercano di indovinare. Tutti votano, senza limite di tempo: a ogni domanda si vedono le percentuali. 7 domande per categoria.</p></div>';
     if (meta.bs) html += '<div class="tv-card tv-bsh"><p class="tv-label">Baby shower</p><h2>' + (meta.bs.b ? "Aspettando " + esc(meta.bs.b) : "Aspettando il bebè") + '</h2><p class="tv-muted">Mamma <b>' + esc(meta.bs.m) + '</b> e papà <b>' + esc(meta.bs.p) + '</b></p><p class="tv-muted">Tutti rispondono a ogni domanda, 7 per categoria. Vince chi totalizza più punti.</p></div>';
     if (S.role === "master") {
@@ -553,8 +744,8 @@
       html += '<div class="tv-card tv-lobby"><p class="tv-label">Sei nella stanza</p><div class="tv-code">' + S.code + '</div><p class="tv-muted">Aspetta che il master avvii la partita.</p></div>';
     }
     html += '<div class="tv-card"><p class="tv-label">Giocatori (' + ids.length + ')</p><ul class="tv-score">' + ids.map(function (i) { return "<li><span class=\"tv-pn\">" + esc(pl[i].name) + (i === S.me ? " (tu)" : "") + (i === "host" ? " · master" : "") + (meta.bd ? (pl[i].role === "f" ? " · festeggiato" : pl[i].role === "i" ? " · invitato" : "") : "") + "</span></li>"; }).join("") + '</ul>' +
-      '<p class="tv-muted">Categorie: ' + cats.map(function (c) { return '<span class="tv-dot" style="--cc:' + c.color + '"></span>' + esc(c.name); }).join(" &nbsp; ") + '</p></div>';
-    if (S.role === "master") html += '<div class="tv-row"><button class="tv-btn" id="tv-start" type="button"' + (ids.length < 2 || nf !== (meta.bd ? 1 : nf) ? " disabled" : "") + '>Avvia la partita</button><button class="tv-btn ghost" id="tv-close" type="button">Annulla</button></div>' + (meta.bd && nf !== 1 ? '<p class="tv-muted">' + (nf === 0 ? "Serve il festeggiato: deve scegliere «Sono il festeggiato»." : "C’è più di un festeggiato.") + "</p>" : (ids.length < 2 ? '<p class="tv-muted">Servono almeno 2 giocatori.</p>' : ""));
+      (cats.length ? '<p class="tv-muted">Categorie: ' : '<p hidden>') + cats.map(function (c) { return '<span class="tv-dot" style="--cc:' + c.color + '"></span>' + esc(c.name); }).join(" &nbsp; ") + '</p></div>';
+    if (S.role === "master") html += '<div class="tv-row"><button class="tv-btn" id="tv-start" type="button"' + (ids.length < (meta.cah ? 3 : 2) || nf !== (meta.bd ? 1 : nf) ? " disabled" : "") + '>Avvia la partita</button><button class="tv-btn ghost" id="tv-close" type="button">Annulla</button></div>' + (meta.bd && nf !== 1 ? '<p class="tv-muted">' + (nf === 0 ? "Serve il festeggiato: deve scegliere «Sono il festeggiato»." : "C’è più di un festeggiato.") + "</p>" : (ids.length < (meta.cah ? 3 : 2) ? '<p class="tv-muted">Servono almeno ' + (meta.cah ? 3 : 2) + " giocatori.</p>" : ""));
     return html;
   }
 
@@ -674,9 +865,9 @@
       var h = S.tree.hb, ms = S.masterSeen, now = Date.now();
       if (ms.n !== h) { S.masterSeen = { n: h, t: now }; } else if (now - ms.t > 40000) masterOff = true;
     }
-    var sig = JSON.stringify([st, Object.keys(pl).map(function (i) { return [i, pl[i].name]; }), S.answered, S.net, masterOff, S.tree.meta && S.tree.meta.cats]);
+    var sig = JSON.stringify([st, Object.keys(pl).map(function (i) { return [i, pl[i].name]; }), S.answered, S.net, masterOff, S.tree.meta && S.tree.meta.cats, S.sel, S.vsel, S.cv, S.tree.hands && S.tree.hands[S.me], S.tree.priv, S.tree.mine && S.tree.mine[S.me]]);
     if (sig === S.sig) return; S.sig = sig;
-    var body = st.phase === "bq" || st.phase === "br" ? bsGameView(st) : st.phase === "bend" ? bsEndView(st) : st.phase === "question" || st.phase === "reveal" ? gameView(st) : st.phase === "end" ? endView(st) : lobbyView();
+    var body = /^c[prvs]$|^cend$/.test(st.phase) ? cahView(st) : st.phase === "bq" || st.phase === "br" ? bsGameView(st) : st.phase === "bend" ? bsEndView(st) : st.phase === "question" || st.phase === "reveal" ? gameView(st) : st.phase === "end" ? endView(st) : lobbyView();
     S.view = st.phase === "lobby" ? "lobby" : "game";
     shell((masterOff ? '<div class="tv-banner warn">Il master sembra offline: aspetta qualche istante.</div>' : "") + body);
     bind(st);
@@ -685,10 +876,15 @@
     var g = function (id, fn) { var e = $(id); if (e) e.addEventListener("click", fn); };
     g("#tv-start", startGame); g("#tv-again", newGame); g("#tv-close", closeRoom);
     g("#tv-stop", function () { if (confirm("Terminare la partita e chiudere la stanza?")) closeRoom(); });
-    g("#tv-skip", function () { if (S.m.bs) askBS(); else next(S.m.cur && S.m.cur.ok); });
-    g("#tv-skipq", function () { if (S.m.bs) bsReveal(); else resolve(-1); });
+    g("#tv-skip", function () { if (S.m.cah) cahNext(); else if (S.m.bs) askBS(); else next(S.m.cur && S.m.cur.ok); });
+    g("#tv-skipq", function () { if (S.m.cah) cahForce(); else if (S.m.bs) bsReveal(); else resolve(-1); });
+    $$(".cah-hand [data-c]").forEach(function (b) { b.addEventListener("click", function () { S.sel = +b.dataset.c; S.sig = ""; render(); }); });
+    $$(".cah-ans[data-v]").forEach(function (b) { b.addEventListener("click", function () { S.vsel = +b.dataset.v; S.sig = ""; render(); }); });
+    g("#cah-send", function () { if (S.sel == null) return; cahSend({ t: "pick", card: S.sel }, st); });
+    g("#cah-show", function () { cahSend({ t: "show" }, st); });
+    g("#cah-vote", function () { if (S.vsel == null) return; S.cv = st.qid; cahSend({ t: "vote", idx: S.vsel }, st); });
     g("#tv-copy", function () { var l = location.origin + location.pathname + "?c=" + S.code; (navigator.clipboard ? navigator.clipboard.writeText(l) : Promise.reject()).then(function () { $("#tv-copy").textContent = "Link copiato"; }).catch(function () { prompt("Copia questo link:", l); }); });
-    g("#tv-share", function () { navigator.share({ title: MODE === "bs" ? "Baby shower" : MODE === "bd" ? "Festa di compleanno" : "Sfida a spicchi", text: "Gioca con me! Codice: " + S.code, url: location.origin + location.pathname + "?c=" + S.code }).catch(function () {}); });
+    g("#tv-share", function () { navigator.share({ title: MODE === "bs" ? "Baby shower" : MODE === "bd" ? "Festa di compleanno" : MODE === "cah" ? "Senza vergogna" : "Sfida a spicchi", text: "Gioca con me! Codice: " + S.code, url: location.origin + location.pathname + "?c=" + S.code }).catch(function () {}); });
     $$(".tv-opt").forEach(function (b) {
       b.addEventListener("click", function () {
         if (st.phase === "bq") {
