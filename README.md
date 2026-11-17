@@ -26,3 +26,8 @@ Inter è salvato sul sito (`inter-*.woff` + `fonts.css`), nessuna richiesta a Go
 
 ## Menu
 Le stesse 8 voci (Chi sono, Libri, Giochi, Progetti, Omaggio, Video, Blog, Contatti) sono in tutte le pagine, con link che funzionano da ovunque. Se ne aggiungi una, ricopiala in ogni file `.html`.
+
+## Giochi da tavolo — Sfida a spicchi 
+- Pagina `tavolo.html` (collegata dalla scheda in «Altri progetti» e da «Giochi formativi») + `tavolo-data.js` (180 domande in 6 categorie), `tavolo-qr.js` (QR), `tavolo.js` (gioco), `tavolo-config.js` (indirizzo del database in tempo reale).
+- Finché `db` in `tavolo-config.js` è vuoto la pagina dice «non ancora attivo». Per attivarla serve il database (vedi la guida a parte).
+- Il database Firebase (indirizzo in `tavolo-config.js`) usa le regole del file `tavolo-firebase-rules.json`. La privacy è già aggiornata.
