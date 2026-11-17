@@ -497,3 +497,21 @@ h1, h2, h3 { font-family: var(--display); font-weight: 900; line-height: 1.04; l
 
 .project.tv .tv-art { background: none; border-radius: 0; font-size: 0; aspect-ratio: 1; width: min(100%, 220px); filter: drop-shadow(0 18px 40px rgba(0,0,0,.4)); }
 @media (max-width: 760px) { .project.tv .tv-art { width: 130px; } }
+
+/* turno: ben visibile quando tocca a te */
+.tv-turnbar { margin: -26px -24px 4px; padding: 12px 24px; border-radius: 22px 22px 0 0; background: var(--night-2); color: var(--on-night-2); font-size: 15px; text-align: center; }
+.tv-turnbar b { color: #fff; }
+.tv-turnbar.me { background: var(--night); color: var(--amber); font: 800 clamp(24px, 6vw, 34px)/1.1 var(--display); letter-spacing: .06em; padding: 16px 24px; animation: tvpulse 1s ease-in-out infinite; }
+.tv-turnbar.good { background: #1c6b46; color: #fff; font-weight: 800; }
+.tv-turnbar.bad { background: #7a2e44; color: #fff; font-weight: 800; }
+.tv-q.mine { background: var(--amber); color: var(--night); box-shadow: 0 0 0 5px color-mix(in srgb, var(--amber) 45%, transparent), 0 20px 50px -10px rgba(232,137,47,.6); animation: tvglow 1.4s ease-in-out infinite; }
+.tv-q.mine .tv-qt { color: var(--night); }
+.tv-q.mine .tv-chip { background: var(--night); color: #fff; }
+.tv-q.mine .tv-turn { color: var(--night); }
+.tv-q.mine .tv-timer { background: rgba(16,20,46,.2); }
+.tv-q.mine .tv-timer i { background: var(--night); }
+.tv-q.mine .tv-opt { background: var(--night); color: #fff; }
+.tv-q:not(.mine) .tv-opt:disabled { opacity: .8; }
+@keyframes tvpulse { 50% { transform: scale(1.03); } }
+@keyframes tvglow { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--amber) 25%, transparent), 0 20px 50px -10px rgba(232,137,47,.6); } }
+@media (prefers-reduced-motion: reduce) { .tv-turnbar.me, .tv-q.mine { animation: none; } }
