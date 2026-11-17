@@ -5,6 +5,8 @@
 
 window.SITE = {
   /* Link al tuo canale YouTube (es. https://www.youtube.com/@alessandromarchetti) */
+
+  melodieChannel: "https://www.youtube.com/channel/UCS49PntynAPYacZDxr3oJYw",
   youtubeChannel: "https://www.youtube.com/@AlessandroMarchetti_AM",
 
   /* Video di presentazione: incolla solo l'ID del video.

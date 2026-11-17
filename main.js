@@ -123,6 +123,7 @@
       .then((d) => renderGallery(d && d.videos && d.videos.length ? d.videos : S.videos || []))
       .catch(() => renderGallery(S.videos || []));
   }
+  document.querySelectorAll("[data-melodie]").forEach((a) => (a.href = S.melodieChannel || S.youtubeChannel || "#"));
   document.querySelectorAll("[data-yt]").forEach((a) => (a.href = S.youtubeChannel || "#"));
 
   /* Articoli */
