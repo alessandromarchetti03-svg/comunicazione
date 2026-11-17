@@ -65,7 +65,8 @@ window.SITE = {
       cover: "cover-il-tuo-corpo-il-tuo-centro.jpg",
       amazon: "https://amzn.eu/d/05aV8G8U",
       blurb: "Viviamo dal collo in su. In venti giorni, un esercizio al giorno, costruisci una sequenza completa di movimenti, respiri e meditazioni che attraversa i sette centri energetici del corpo, spiegati con chiarezza e senza misticismi. Alla fine avrai un rituale tuo: mezz’ora, o quindici minuti nei giorni pieni, per iniziare o chiudere la giornata.",
-      tags: ["Corpo", "Respiro", "20 giorni"]
+      tags: ["Corpo", "Respiro", "20 giorni"],
+      extra: { label: "Scopri NaturalPlan", url: "https://www.naturalplan.it" }
     },
     {
       title: "I Tuoi Soldi, Il Tuo Benessere",

@@ -85,9 +85,12 @@
           <p class="sub">${esc(b.subtitle)}</p>
           <p>${esc(b.blurb)}</p>
           <ul class="tags">${(b.tags || []).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
-          ${b.amazon
-            ? `<a class="btn" href="${esc(b.amazon)}" target="_blank" rel="noopener">Acquista su Amazon</a>`
-            : `<span class="btn" aria-disabled="true">In arrivo su Amazon</span>`}
+          <div class="book-actions">
+            ${b.amazon
+              ? `<a class="btn" href="${esc(b.amazon)}" target="_blank" rel="noopener">Acquista su Amazon</a>`
+              : `<span class="btn" aria-disabled="true">In arrivo su Amazon</span>`}
+            ${b.extra ? `<a class="btn ghost" href="${esc(b.extra.url)}" target="_blank" rel="noopener">${esc(b.extra.label)}</a>` : ""}
+          </div>
         </div>
       </article>`).join("");
   }
