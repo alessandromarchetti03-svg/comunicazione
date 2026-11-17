@@ -557,3 +557,26 @@ div.cah-white { cursor: default; }
 .cah-white small.tv-you { display: block; margin-top: 6px; color: #b4561a; }
 .cah-white b { color: #b4561a; margin-right: 4px; }
 textarea.tv-in { resize: vertical; min-height: 84px; }
+
+/* Disegna e indovina */
+.dis-card { padding-top: 0; }
+.dis-info { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 4px 0 12px; }
+.dis-word { font: 800 clamp(20px, 5vw, 26px)/1.2 var(--display); }
+.dis-word b { color: var(--amber); }
+.dis-word.big { font-size: clamp(26px, 7vw, 36px); }
+.dis-cv { display: block; width: 100%; aspect-ratio: 4 / 3; background: #fff; border-radius: 14px; border: 3px solid rgba(255,255,255,.2); touch-action: none; cursor: crosshair; margin: 8px 0 12px; }
+.dis-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
+.dis-sw { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(255,255,255,.35); background: var(--sw); cursor: pointer; padding: 0; font-size: 0; }
+.dis-sw[data-col="9"] { width: auto; border-radius: 99px; padding: 0 12px; font: 700 13px var(--sans); color: #10142e; }
+.dis-sw.on { border-color: var(--amber); box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 45%, transparent); }
+.dis-wd { width: 38px; height: 38px; border-radius: 10px; border: 2px solid rgba(255,255,255,.3); background: transparent; display: inline-grid; place-items: center; cursor: pointer; padding: 0; }
+.dis-wd i { display: block; background: #fff; border-radius: 50%; }
+.dis-wd.on { border-color: var(--amber); }
+.dis-sep { width: 1px; height: 28px; background: rgba(255,255,255,.2); margin: 0 4px; }
+.dis-tb { border: 2px solid rgba(255,255,255,.3); background: transparent; color: #fff; border-radius: 10px; padding: 8px 12px; font: 700 14px var(--sans); cursor: pointer; }
+.dis-opts { display: grid; gap: 10px; margin: 10px 0 12px; }
+.dis-opt { text-align: left; background: #fff; color: #10142e; border: 3px solid transparent; border-radius: 16px; padding: 14px 18px; cursor: pointer; display: grid; gap: 4px; font: 800 20px/1.25 var(--sans); }
+.dis-opt .dis-lv { font: 700 12px var(--sans); letter-spacing: .06em; text-transform: uppercase; color: #b4561a; }
+.dis-opt.l0 { border-left: 10px solid #5fd08b; } .dis-opt.l1 { border-left: 10px solid #5aaee8; } .dis-opt.l2 { border-left: 10px solid #e8892f; } .dis-opt.l3 { border-left: 10px solid #e03131; }
+.dis-opt:hover { border-color: var(--amber); }
+.dis-win { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 8px; }

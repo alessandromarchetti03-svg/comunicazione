@@ -6,7 +6,7 @@
   "use strict";
   var CATS = window.TAVOLO_CATS || [], BANK = window.TAVOLO_Q || {}, CFG = window.TAVOLO_CONFIG || {};
   var DB = (CFG.db || "").replace(/\/$/, "");
-  var MODE = window.TAVOLO_MODE === "bs" ? "bs" : window.TAVOLO_MODE === "bd" ? "bd" : window.TAVOLO_MODE === "cah" ? "cah" : "quiz";
+  var MODE = window.TAVOLO_MODE === "bs" ? "bs" : window.TAVOLO_MODE === "bd" ? "bd" : window.TAVOLO_MODE === "cah" ? "cah" : window.TAVOLO_MODE === "dis" ? "dis" : "quiz";
   var NOI = { id: "noi", name: "Su di noi", color: "#ffffff" };
   var root = document.getElementById("tv");
   if (!root) return;
@@ -21,6 +21,7 @@
   var CH = "ABCDEFGHJKMNPQRSTUVWXYZ";
   function randCode() { var s = ""; for (var i = 0; i < 4; i++) s += CH[rnd(CH.length)]; return s; }
   var BS = window.TAVOLO_BS || { cats: [], Q: {}, names: { f: [], m: [] } }, LOCALCN = null;
+  var DIS = window.TAVOLO_DIS || { levels: [], words: [[], [], [], []] };
   var BD = window.TAVOLO_BD || { cats: [] }, CAH = window.TAVOLO_CAH || { black: [], white: [] };
   function bsCat(id) { return BS.cats.concat(BD.cats).filter(function (c) { return c.id === id; })[0]; }
   function catById(id) {
@@ -79,15 +80,16 @@
     if (q) { return joinForm(q[1].toUpperCase()); }
     shell(
       '<div class="tv-home">' +
-      '<button class="tv-big" id="tv-new" type="button"><b>' + (MODE === "bs" || MODE === "bd" ? "Crea la festa" : "Crea una partita") + '</b><span>' + (MODE === "bs" ? "Sei il master: scrivi i nomi, scegli le categorie e invita gli ospiti." : MODE === "bd" ? "Sei il master: imposta gli anni del festeggiato, le categorie e invita gli ospiti." : MODE === "cah" ? "Sei il master: scegli i giri e invita gli amici (servono almeno 3 giocatori)." : "Sei il master: scegli le regole e invita gli amici.") + '</span></button>' +
+      '<button class="tv-big" id="tv-new" type="button"><b>' + (MODE === "bs" || MODE === "bd" ? "Crea la festa" : "Crea una partita") + '</b><span>' + (MODE === "bs" ? "Sei il master: scrivi i nomi, scegli le categorie e invita gli ospiti." : MODE === "bd" ? "Sei il master: imposta gli anni del festeggiato, le categorie e invita gli ospiti." : MODE === "cah" ? "Sei il master: scegli i giri e invita gli amici (servono almeno 3 giocatori)." : MODE === "dis" ? "Sei il master: scegli i giri e il tempo, poi invita gli amici." : "Sei il master: scegli le regole e invita gli amici.") + '</span></button>' +
       '<button class="tv-big alt" id="tv-join" type="button"><b>Entra con un codice</b><span>Hai ricevuto un codice o un QR? Entra qui.</span></button>' +
       '</div>');
-    $("#tv-new").addEventListener("click", MODE === "bs" ? setupBS : MODE === "bd" ? setupBD : MODE === "cah" ? setupCAH : setup);
+    $("#tv-new").addEventListener("click", MODE === "bs" ? setupBS : MODE === "bd" ? setupBD : MODE === "cah" ? setupCAH : MODE === "dis" ? setupDIS : setup);
     $("#tv-join").addEventListener("click", function () { joinForm(""); });
   }
   function cleanup() {
     if (S.es) S.es.close(); S.es = null;
-    clearInterval(S.hb); clearInterval(S.tick); if (S.m) clearTimeout(S.m.to);
+    clearInterval(S.hb); clearInterval(S.tick); if (S.m) { clearTimeout(S.m.to); clearTimeout(S.m.to2); }
+    D.q = null; D.ops = []; D.list = []; D.busy = false;
     LOCALCN = null; S.role = null; S.code = null; S.me = null; S.tree = {}; S.m = null; S.answered = null; S.sig = ""; S.loaded = false;
   }
 
@@ -480,6 +482,230 @@
     return html + '<div class="tv-card"><p class="tv-label">Punteggi</p>' + cahScore(st, false) + "</div>";
   }
 
+  /* ---------- Disegna e indovina ---------- */
+  var DCOL = ["#111111", "#e03131", "#f08c00", "#f2d600", "#2f9e44", "#1c7ed6", "#7048e8", "#a0522d", "#ff8fb3", "#ffffff"], DW = [5, 12, 26];
+  var D = { q: null, list: [], n: 0, g: 0, col: 0, wd: 1, ops: [], busy: false, cache: {}, raf: 0 };
+  function disPool(l) { return (DIS.words[l] || []).concat(l === 1 ? toArr(S.tree.meta && S.tree.meta.dw) : []); }
+  function disWord(code) { var p = String(code).split(":"); return disPool(+p[0])[+p[1]] || ""; }
+  function disOpts(m) { return m.dk.map(function (k, l) { if (!k.d.length) k.d = shuffle(range(disPool(l).length)); return l + ":" + k.d.pop(); }); }
+  function setupDIS() {
+    S.view = "setup";
+    shell(
+      '<form class="tv-card" id="tv-form" autocomplete="off">' +
+      '<h2>Disegna e indovina</h2>' +
+      '<p class="tv-muted">A turno uno disegna sul suo schermo e gli altri vedono il disegno sul proprio telefono. Chi disegna sceglie tra 4 parole di difficoltà diversa; gli altri indovinano a voce e alla fine chi disegna indica il vincitore.</p>' +
+      '<label class="tv-label" for="tv-giri">Quanti giri?</label><select class="tv-in" id="tv-giri"><option value="1">1 giro: tutti disegnano una volta</option><option value="2">2 giri</option><option value="3">3 giri</option></select>' +
+      '<label class="tv-label" for="tv-secs">Tempo per disegnare</label><select class="tv-in" id="tv-secs"><option value="60">60 secondi</option><option value="90" selected>90 secondi</option><option value="120">2 minuti</option><option value="0">Senza limite</option></select>' +
+      '<details class="tv-det"><summary>Aggiungi parole tue (facoltativo)</summary>' +
+      '<p class="tv-muted">Una per riga. Entrano nella fascia «Media» (2 punti).</p>' +
+      '<textarea class="tv-in" id="tv-cw" rows="4" maxlength="1200" placeholder="Il gatto di Marta"></textarea></details>' +
+      '<label class="tv-check solo"><input type="checkbox" id="tv-hp" checked><span>Gioco anch’io, su questo dispositivo</span></label>' +
+      '<input class="tv-in" id="tv-hname" maxlength="16" placeholder="Il tuo nome" aria-label="Il tuo nome">' +
+      '<p class="tv-err" id="tv-err" role="alert"></p>' +
+      '<div class="tv-row"><button class="tv-btn" type="submit">Crea partita</button><button class="tv-btn ghost" id="tv-back" type="button">Indietro</button></div></form>');
+    $("#tv-back").addEventListener("click", goHome);
+    $("#tv-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var err = $("#tv-err"), hp = $("#tv-hp").checked, hn = $("#tv-hname").value.trim();
+      if (hp && !hn) { err.textContent = "Scrivi il tuo nome, oppure togli la spunta."; return; }
+      var dw = $("#tv-cw").value.split("\n").map(function (x) { return x.trim().slice(0, 40); }).filter(Boolean).slice(0, 30);
+      createRoom({ cats: [], secs: 0, hostName: hp ? hn : "", dis: { giri: +$("#tv-giri").value, secs: +$("#tv-secs").value, dw: dw } });
+    });
+  }
+  function startDIS(ids) {
+    var m = S.m;
+    m.order = ids; m.wedges = {}; m.score = {}; ids.forEach(function (i) { m.score[i] = 0; });
+    m.dk = [0, 1, 2, 3].map(function (l) { return { d: shuffle(range(disPool(l).length)) }; });
+    m.ri = -1; m.cur = null; del("/draw"); del("/priv");
+    put("/meta/status", "playing");
+    disNext();
+  }
+  function disNext() {
+    var m = S.m; clearTimeout(m.to); clearTimeout(m.to2); m.ri++;
+    var n = m.order.length, total = n * (m.dis.giri || 1), tries = 0, dr, o;
+    while (tries < n && m.off.indexOf(m.order[m.ri % n]) >= 0) { m.ri++; tries++; }
+    if (m.ri >= total) return disEnd();
+    dr = m.order[m.ri % n]; o = disOpts(m);
+    m.cur = { qid: rid(), drawer: dr, opts: o, stage: "p", rr: 0, word: null, lvl: -1 };
+    del("/draw"); put("/priv", { to: dr, qid: m.cur.qid, o: o });
+    publish({ phase: "dp", qid: m.cur.qid, drawer: dr, rn: m.ri + 1, rt: total, lvl: null, over: false, winner: null, gain: null, word: null, rr: 0, secs: m.dis.secs, scores: m.score, winners: null });
+  }
+  function disAct(x) {
+    var m = S.m, c = m.cur; if (!c || x.qid !== c.qid || x.pid !== c.drawer) return;
+    if (x.t === "word" && c.stage === "p") disPick(+x.o);
+    else if (x.t === "reroll" && c.stage === "p" && c.rr < 1) { c.rr++; c.opts = disOpts(m); put("/priv", { to: c.drawer, qid: c.qid, o: c.opts }); publish({ rr: c.rr }); }
+    else if (x.t === "win" && c.stage === "d") disWin(String(x.w || ""));
+  }
+  function disPick(o) {
+    var m = S.m, c = m.cur; if (!c || c.stage !== "p" || !(o >= 0 && o < 4)) return;
+    var code = c.opts[o]; c.lvl = +code.split(":")[0]; c.word = disWord(code); c.stage = "d";
+    put("/priv", { to: c.drawer, qid: c.qid, w: c.word, l: c.lvl });
+    publish({ phase: "dd", lvl: c.lvl, over: false });
+    if (m.dis.secs > 0) m.to2 = setTimeout(function () { if (m.cur === c && c.stage === "d") publish({ over: true }); }, m.dis.secs * 1000 + 1500);
+  }
+  function disWin(w) {
+    var m = S.m, c = m.cur; if (!c || c.stage !== "d") return;
+    var pl = S.tree.players || {}; if (w && (w === c.drawer || !pl[w])) return;
+    c.stage = "r"; clearTimeout(m.to2);
+    var pts = DIS.levels[c.lvl].pts, gain = null;
+    if (w) { var dp = Math.ceil(pts / 2); m.score[w] = (m.score[w] || 0) + pts; m.score[c.drawer] = (m.score[c.drawer] || 0) + dp; gain = { w: pts, d: dp }; }
+    del("/priv");
+    publish({ phase: "dr", word: c.word, winner: w, gain: gain, over: false, scores: m.score });
+    m.to = setTimeout(disNext, 14000);
+  }
+  function disForce() {
+    var m = S.m, c = m.cur; if (!c) return;
+    if (c.stage === "p") disPick(rnd(4)); else if (c.stage === "d") disWin(""); else disNext();
+  }
+  function disCheck() {
+    var m = S.m, c = m && m.cur;
+    if (c && c.stage !== "r" && m.off.indexOf(c.drawer) >= 0) disNext();
+  }
+  function disEnd() {
+    var m = S.m, best = -1, w = {}; m.cur = null;
+    m.order.forEach(function (id) { if (m.score[id] > best) best = m.score[id]; });
+    m.order.forEach(function (id) { if (m.score[id] === best) w[id] = true; });
+    publish({ phase: "dend", scores: m.score, winners: w, word: null, winner: null, gain: null });
+    put("/meta/status", "ended");
+  }
+  function disSend(a, st) {
+    a.pid = S.me; a.qid = st.qid;
+    if (S.role === "master") disAct(a); else put("/actions/" + rid(), a);
+    S.sig = ""; render();
+  }
+  /* disegno: i tratti viaggiano come testo «gruppo|colore|spessore|x,y;x,y», coordinate 0-1000 e 0-750 */
+  function dEnc(s) { return s.g + "|" + s.c + "|" + s.w + "|" + s.p.map(function (q) { return q[0] + "," + q[1]; }).join(";"); }
+  function dDec(str) {
+    if (D.cache[str]) return D.cache[str];
+    var a = String(str).split("|"); if (a.length < 4) return null;
+    var p = a[3].split(";").map(function (t) { var q = t.split(","); return [+q[0], +q[1]]; }).filter(function (q) { return q[0] === q[0] && q[1] === q[1]; });
+    if (!p.length) return null;
+    return (D.cache[str] = { g: +a[0], c: +a[1], w: +a[2], p: p });
+  }
+  function dLine(ctx, s) {
+    var p = s.p, w = DW[s.w] || DW[1];
+    ctx.strokeStyle = ctx.fillStyle = DCOL[s.c] || DCOL[0]; ctx.lineWidth = w; ctx.lineCap = ctx.lineJoin = "round";
+    if (p.length === 1) { ctx.beginPath(); ctx.arc(p[0][0], p[0][1], w / 2, 0, 7); ctx.fill(); return; }
+    ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]);
+    for (var i = 1; i < p.length; i++) ctx.lineTo(p[i][0], p[i][1]);
+    ctx.stroke();
+  }
+  function dRepaint(cv, list) {
+    var ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 1000, 750);
+    list.forEach(function (s) { dLine(ctx, s); });
+  }
+  function dTreeKeys() {
+    var d = S.tree.draw, st = S.tree.state || {};
+    if (!d || d.q !== st.qid || !d.s) return [];
+    return Object.keys(d.s).filter(function (k) { return d.s[k]; }).sort(function (a, b) { return (+a.slice(1)) - (+b.slice(1)); });
+  }
+  function dTreeStrokes() { var s = (S.tree.draw || {}).s || {}; return dTreeKeys().map(function (k) { return dDec(s[k]); }).filter(Boolean); }
+  function disPaint() {
+    var st = S.tree.state || {}, cv = $("#dis-cv"); if (!cv || D.raf) return;
+    if (st.phase === "dd" && st.drawer === S.me) return;
+    D.raf = requestAnimationFrame(function () { D.raf = 0; var c2 = $("#dis-cv"); if (c2) dRepaint(c2, dTreeStrokes()); });
+  }
+  function dq(path, v) {
+    var o = D.ops, l = o[o.length - 1];
+    if (l && l.p === path && !l.fly) l.v = v; else o.push({ p: path, v: v });
+    dpump();
+  }
+  function dpump() {
+    if (D.busy || !D.ops.length || !S.code) return;
+    D.busy = true; var op = D.ops[0]; op.fly = true;
+    req(op.v === null ? "DELETE" : "PUT", S.code, op.p, op.v === null ? undefined : op.v).catch(netErr).then(function () { D.ops.shift(); D.busy = false; dpump(); });
+  }
+  function disMount(st) {
+    var cv = $("#dis-cv"), g = function (id, fn) { var e = $(id); if (e) e.addEventListener("click", fn); };
+    $$(".dis-opt").forEach(function (b) { b.addEventListener("click", function () { disSend({ t: "word", o: +b.dataset.o }, st); }); });
+    g("#dis-reroll", function () { disSend({ t: "reroll" }, st); });
+    g("#dis-got", function () { S.dj = st.qid; S.sig = ""; render(); });
+    g("#dis-back", function () { S.dj = null; S.sig = ""; render(); });
+    $$(".dis-win [data-w]").forEach(function (b) { b.addEventListener("click", function () { disSend({ t: "win", w: b.dataset.w }, st); }); });
+    if (!cv) return;
+    var mineNow = st.phase === "dd" && !!S.me && st.drawer === S.me;
+    if (!mineNow) { dRepaint(cv, dTreeStrokes()); return; }
+    if (D.q !== st.qid) {
+      D.q = st.qid; D.list = []; D.n = 0; D.g = 0; D.ops = []; D.cache = {};
+      var sm = (S.tree.draw || {}).s || {};
+      if ((S.tree.draw || {}).q !== st.qid) dq("/draw/q", st.qid);
+      dTreeKeys().forEach(function (k) { var s = dDec(sm[k]); if (s) { s.k = k; D.list.push(s); D.n = Math.max(D.n, +k.slice(1) + 1); D.g = Math.max(D.g, s.g); } });
+    }
+    dRepaint(cv, D.list);
+    if (!cv.dataset.draw) return;
+    var ctx = cv.getContext("2d"), cur = null, last = 0;
+    function mark() {
+      $$(".dis-sw").forEach(function (b) { b.classList.toggle("on", +b.dataset.col === D.col); });
+      $$(".dis-wd").forEach(function (b) { b.classList.toggle("on", +b.dataset.wd === D.wd); });
+    }
+    mark();
+    $$(".dis-sw").forEach(function (b) { b.addEventListener("click", function () { D.col = +b.dataset.col; mark(); }); });
+    $$(".dis-wd").forEach(function (b) { b.addEventListener("click", function () { D.wd = +b.dataset.wd; mark(); }); });
+    g("#dis-undo", function () {
+      if (!D.list.length) return; var gid = D.list[D.list.length - 1].g;
+      while (D.list.length && D.list[D.list.length - 1].g === gid) dq("/draw/s/" + D.list.pop().k, null);
+      dRepaint(cv, D.list);
+    });
+    g("#dis-clr", function () { if (!D.list.length) return; D.list = []; dq("/draw/s", null); dRepaint(cv, D.list); });
+    function pos(e) { var r = cv.getBoundingClientRect(); return [Math.max(0, Math.min(1000, Math.round((e.clientX - r.left) / r.width * 1000))), Math.max(0, Math.min(750, Math.round((e.clientY - r.top) / r.height * 750)))]; }
+    function begin(gid, c, w, p) { var s = { k: "s" + D.n++, g: gid, c: c, w: w, p: [p] }; D.list.push(s); return s; }
+    function send(s) { dq("/draw/s/" + s.k, dEnc(s)); last = Date.now(); }
+    cv.addEventListener("pointerdown", function (e) {
+      if (cur) return; e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+      cur = begin(++D.g, D.col, D.wd, pos(e)); dLine(ctx, cur); send(cur);
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (!cur) return; e.preventDefault();
+      var p = pos(e), l = cur.p[cur.p.length - 1];
+      if (Math.abs(p[0] - l[0]) + Math.abs(p[1] - l[1]) < 3) return;
+      cur.p.push(p); dLine(ctx, { c: cur.c, w: cur.w, p: [l, p] });
+      if (cur.p.length >= 120) { send(cur); cur = begin(cur.g, cur.c, cur.w, p); }
+      else if (Date.now() - last > 100) send(cur);
+    });
+    function end() { if (cur) { send(cur); cur = null; } }
+    cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
+  }
+  function disView(st) {
+    var DL = DIS.levels;
+    if (st.phase === "dend") {
+      var pl0 = S.tree.players || {}, wn = Object.keys(st.winners || {}).map(function (i) { return pl0[i] ? pl0[i].name : "?"; });
+      var h0 = '<div class="tv-card tv-end"><p class="tv-label">Partita finita</p><h2>' + (wn.length === 1 ? "Vince " + esc(wn[0]) + "!" : "Pari merito: " + esc(wn.join(" e ")) + "!") + '</h2><p class="tv-muted">Il miglior disegnatore, o il miglior indovino, della serata.</p></div><div class="tv-card"><p class="tv-label">Classifica</p>' + cahScore(st, true) + "</div>";
+      if (S.role === "master") h0 += '<div class="tv-row"><button class="tv-btn" id="tv-again" type="button">Nuova partita</button><button class="tv-btn ghost" id="tv-close" type="button">Chiudi la stanza</button></div>';
+      return h0 + '<p class="tv-muted">Il master può avviare una nuova partita.</p>';
+    }
+    var pl = S.tree.players || {}, dr = st.drawer, isD = !!S.me && S.me === dr, dn = esc(pname(dr)), pv = S.tree.priv;
+    var mypv = pv && pv.to === S.me && pv.qid === st.qid ? pv : null, lv = st.lvl != null ? DL[st.lvl] : null;
+    var bar = "", body = "", pts = function (l) { return DL[l].name + " · " + DL[l].pts + (DL[l].pts === 1 ? " punto" : " punti"); };
+    var canvas = '<canvas id="dis-cv" class="dis-cv" width="1000" height="750"';
+    if (st.phase === "dp") {
+      if (isD) {
+        var o = mypv ? toArr(mypv.o) : [];
+        bar = '<div class="tv-turnbar me">TOCCA A TE: SCEGLI COSA DISEGNARE</div>';
+        body = o.length ? '<div class="dis-opts">' + o.map(function (c, i) { var l = +c.split(":")[0]; return '<button type="button" class="dis-opt l' + l + '" data-o="' + i + '"><span class="dis-lv">' + pts(l) + "</span><b>" + esc(disWord(c)) + "</b></button>"; }).join("") + "</div>" +
+          (!st.rr ? '<div class="tv-row"><button class="tv-btn ghost" id="dis-reroll" type="button">Cambia le 4 parole (una volta sola)</button></div>' : "") : '<p class="tv-muted">Carico le parole…</p>';
+      } else { bar = '<div class="tv-turnbar watch"><b>' + dn + "</b> sta scegliendo cosa disegnare</div>"; body = '<p class="tv-muted">Preparati: dovrai indovinare a voce cosa disegna.</p>'; }
+    } else if (st.phase === "dd") {
+      var judge = isD && S.dj === st.qid, draw = isD && !judge && !st.over;
+      bar = isD ? (st.over ? '<div class="tv-turnbar watch">Tempo scaduto</div>' : '<div class="tv-turnbar me">DISEGNA!</div>') : (st.over ? '<div class="tv-turnbar watch">Tempo scaduto: ora si decide</div>' : '<div class="tv-turnbar watch">Indovina cosa disegna <b>' + dn + "</b></div>");
+      body = '<div class="dis-info">' + (isD && mypv && mypv.w ? '<div class="dis-word">Disegna: <b>' + esc(mypv.w) + "</b></div>" : "") + '<span class="tv-chip" style="--cc:#fdc93c">' + (lv ? pts(st.lvl) : "") + "</span></div>" +
+        (st.secs > 0 && !st.over ? '<div class="tv-timer" style="--cc:#fdc93c"><i style="animation-duration:' + st.secs + "s;animation-delay:-" + qElapsed(st.qid + "d").toFixed(1) + 's"></i></div>' : "") +
+        canvas + (draw ? ' data-draw="1"' : "") + "></canvas>";
+      if (draw) body += '<div class="dis-tools">' + DCOL.map(function (c, i) { return '<button type="button" class="dis-sw" data-col="' + i + '" style="--sw:' + c + '" aria-label="' + (i === 9 ? "Gomma" : "Colore " + (i + 1)) + '">' + (i === 9 ? "Gomma" : "") + "</button>"; }).join("") +
+        '<span class="dis-sep"></span>' + [0, 1, 2].map(function (i) { return '<button type="button" class="dis-wd" data-wd="' + i + '" aria-label="Spessore ' + (i + 1) + '"><i style="width:' + (6 + i * 6) + "px;height:" + (6 + i * 6) + 'px"></i></button>'; }).join("") +
+        '<span class="dis-sep"></span><button type="button" class="dis-tb" id="dis-undo">Annulla</button><button type="button" class="dis-tb" id="dis-clr">Cancella</button></div>';
+      if (isD && !judge) body += '<div class="tv-row"><button class="tv-btn" id="dis-got" type="button">Qualcuno ha indovinato</button></div>';
+      if (judge) body += '<p class="tv-label">Chi ha indovinato?</p><div class="dis-win">' + Object.keys(pl).filter(function (i) { return i !== dr; }).sort(function (a, b) { return (pl[a].t || 0) - (pl[b].t || 0); }).map(function (i) { return '<button type="button" class="tv-btn ghost" data-w="' + i + '">' + esc(pl[i].name) + "</button>"; }).join("") + '<button type="button" class="tv-btn ghost" data-w="">Nessuno</button><button type="button" class="tv-btn ghost" id="dis-back">Indietro</button></div>';
+    } else {
+      var wn2 = st.winner ? esc(pname(st.winner)) : "";
+      bar = '<div class="tv-turnbar ' + (st.winner ? "good" : "bad") + '">' + (st.winner ? "Ha indovinato <b>" + wn2 + "</b>!" : "Nessuno ha indovinato") + "</div>";
+      body = '<div class="dis-info"><div class="dis-word big">Era: <b>' + esc(st.word || "") + "</b></div>" + (lv ? '<span class="tv-chip" style="--cc:#fdc93c">' + pts(st.lvl) + "</span>" : "") + "</div>" + canvas + "></canvas>" +
+        (st.gain ? '<p class="tv-msg" role="status">' + wn2 + " +" + st.gain.w + " · " + dn + " +" + st.gain.d + " (disegnatore)</p>" : '<p class="tv-muted">Nessun punto in questo turno.</p>');
+    }
+    var html = '<div class="tv-card dis-card">' + bar + '<p class="tv-label">Turno ' + st.rn + " di " + st.rt + " · disegna <b>" + dn + (isD ? " (tu)" : "") + "</b></p>" + body + "</div>";
+    if (S.role === "master") html += '<div class="tv-row">' + (st.phase === "dr" ? '<button class="tv-btn" id="tv-skip" type="button">Continua</button>' : '<button class="tv-btn ghost" id="tv-skipq" type="button">Passa avanti</button>') + '<button class="tv-btn ghost" id="tv-stop" type="button">Termina partita</button></div>';
+    return html + '<div class="tv-card"><p class="tv-label">Punteggi</p>' + cahScore(st, false) + "</div>";
+  }
+
   /* ---------- master: stanza ---------- */
   function createRoom(set) {
     var btn = $("#tv-form button[type=submit]"); if (btn) btn.disabled = true;
@@ -488,10 +714,10 @@
       req("GET", c, "/meta").then(function (ex) {
         if (ex && n < 8) return attempt(n + 1);
         S.code = c; S.role = "master"; S.me = set.hostName ? "host" : null; S.name = set.hostName; LOCALCN = set.cn || null;
-        var room = { meta: { created: Date.now(), status: "lobby", secs: set.secs, cats: set.cats, cn: set.cn || null, bs: set.bs || null, bd: set.bd ? { age: set.bd.age } : null, cah: set.cah ? { giri: set.cah.giri } : null, cw: set.cah && set.cah.cw.length ? set.cah.cw : null, cb: set.cah && set.cah.cb.length ? set.cah.cb : null }, state: { phase: "lobby" }, hb: 0 };
+        var room = { meta: { created: Date.now(), status: "lobby", secs: set.secs, cats: set.cats, cn: set.cn || null, bs: set.bs || null, bd: set.bd ? { age: set.bd.age } : null, cah: set.cah ? { giri: set.cah.giri } : null, dis: set.dis ? { giri: set.dis.giri, secs: set.dis.secs } : null, dw: set.dis && set.dis.dw.length ? set.dis.dw : null, cw: set.cah && set.cah.cw.length ? set.cah.cw : null, cb: set.cah && set.cah.cb.length ? set.cah.cb : null }, state: { phase: "lobby" }, hb: 0 };
         if (set.hostName) room.players = { host: { name: set.hostName, t: Date.now(), n: 0, role: set.hostRole || null } };
         return req("PUT", c, "", room).then(function () {
-          S.m = { set: set, secs: set.secs, cats: set.cats.map(catById), custom: custom.slice(), banks: set.banks || null, bs: !!(set.bs || set.bd), bd: set.bd || null, cah: set.cah || null, seen: {}, off: [], wedges: {}, order: [], ti: 0, state: { phase: "lobby" } };
+          S.m = { set: set, secs: set.secs, cats: set.cats.map(catById), custom: custom.slice(), banks: set.banks || null, bs: !!(set.bs || set.bd), bd: set.bd || null, cah: set.cah || null, dis: set.dis || null, seen: {}, off: [], wedges: {}, order: [], ti: 0, state: { phase: "lobby" } };
           S.view = "lobby"; listen(); wake();
           S.hb = setInterval(function () { put("/hb", ++S.hbN); }, 8000);
           S.tick = setInterval(masterTick, 5000);
@@ -515,6 +741,7 @@
     var ids = Object.keys(pl).sort(function (a, b) { return (pl[a].t || 0) - (pl[b].t || 0); });
     if (ids.length < 2) return;
     if (m.cah) { if (ids.length < 3) return; return startCAH(ids); }
+    if (m.dis) return startDIS(ids);
     if (m.bd) { var nf = ids.filter(function (i) { return pl[i].role === "f"; }).length; if (nf !== 1) return; }
     if (m.bs) return startBS(ids);
     m.order = ids; m.ti = 0; m.wedges = {}; ids.forEach(function (i) { m.wedges[i] = []; });
@@ -613,13 +840,14 @@
       else if (now - s.t > 30000) off.push(id);
     });
     off.sort();
-    if (JSON.stringify(off) !== JSON.stringify(m.off.slice().sort())) { m.off = off; if (m.state.phase !== "lobby") publish({}); else put("/state/off", off.length ? off : null); if (m.bs && m.state.phase === "bq") bsCheck(); if (m.cah && m.cur) cahCheck(); }
+    if (JSON.stringify(off) !== JSON.stringify(m.off.slice().sort())) { m.off = off; if (m.state.phase !== "lobby") publish({}); else put("/state/off", off.length ? off : null); if (m.bs && m.state.phase === "bq") bsCheck(); if (m.cah && m.cur) cahCheck(); if (m.dis && m.cur) disCheck(); }
   }
   function processActions() {
     var a = S.tree.actions, m = S.m; if (!a || !m) return;
     Object.keys(a).forEach(function (k) {
       var x = a[k]; delete a[k]; del("/actions/" + k);
       if (m.cah) { if (x) cahAct(x); return; }
+      if (m.dis) { if (x) disAct(x); return; }
       if (m.bs) { if (x && m.cur && x.qid === m.cur.qid) bsVote(x.pid, +x.idx); return; }
       if (m.cur && !m.cur.done && x && x.pid === m.cur.pid && x.qid === m.cur.qid) resolve(+x.idx);
     });
@@ -629,7 +857,7 @@
     m.state = { phase: "lobby" }; put("/state", { phase: "lobby" }); put("/meta/status", "lobby");
   }
   function closeRoom() {
-    var m = S.m; if (m) clearTimeout(m.to);
+    var m = S.m; if (m) { clearTimeout(m.to); clearTimeout(m.to2); }
     var c = S.code; req("DELETE", c, "").catch(function () {}).then(function () { goHome(); });
   }
 
@@ -735,6 +963,7 @@
     var meta = S.tree.meta || {}, cats = toArr(meta.cats).map(catById), nf = ids.filter(function (i) { return pl[i].role === "f"; }).length;
     var link = location.origin + location.pathname + "?c=" + S.code;
     var html = '';
+    if (meta.dis) html += '<div class="tv-card tv-bsh"><p class="tv-label">Disegna e indovina</p><h2>Chi disegna meglio?</h2><p class="tv-muted">A turno uno disegna e gli altri vedono il disegno sul telefono. Chi disegna sceglie tra 4 parole di difficoltà diversa, gli altri indovinano a voce e alla fine è lui a indicare il vincitore.</p></div>';
     if (meta.cah) html += '<div class="tv-card tv-bsh"><p class="tv-label">Senza vergogna · vietato ai minori di 18 anni</p><h2>Il gioco delle risposte peggiori</h2><p class="tv-muted">Ogni turno uno di voi è il lettore: legge la carta nera, gli altri rispondono con una carta bianca. Poi si vota la risposta più divertente (non la propria). Linguaggio esplicito e humour nero.</p></div>';
     if (meta.bd) html += '<div class="tv-card tv-bsh"><p class="tv-label">Festa di compleanno</p><h2>' + esc(meta.bd.age) + ' anni!</h2><p class="tv-muted">Il festeggiato risponde in segreto alle domande su di lui, gli invitati cercano di indovinare. Tutti votano, senza limite di tempo: a ogni domanda si vedono le percentuali. 7 domande per categoria.</p></div>';
     if (meta.bs) html += '<div class="tv-card tv-bsh"><p class="tv-label">Baby shower</p><h2>' + (meta.bs.b ? "Aspettando " + esc(meta.bs.b) : "Aspettando il bebè") + '</h2><p class="tv-muted">Mamma <b>' + esc(meta.bs.m) + '</b> e papà <b>' + esc(meta.bs.p) + '</b></p><p class="tv-muted">Tutti rispondono a ogni domanda, 7 per categoria. Vince chi totalizza più punti.</p></div>';
@@ -859,7 +1088,7 @@
     if (S.role === "master") processActions();
     if (!S.role) return;
     if (S.loaded && !S.tree.meta) { var wasRole = S.role; cleanup(); if (wasRole === "player") closedView(); else goHome(); return; }
-    render();
+    render(); if (MODE === "dis") disPaint();
   }
   function render() {
     var st = S.tree.state || { phase: "lobby" }, pl = S.tree.players || {};
@@ -868,9 +1097,10 @@
       var h = S.tree.hb, ms = S.masterSeen, now = Date.now();
       if (ms.n !== h) { S.masterSeen = { n: h, t: now }; } else if (now - ms.t > 40000) masterOff = true;
     }
-    var sig = JSON.stringify([st, Object.keys(pl).map(function (i) { return [i, pl[i].name]; }), S.answered, S.net, masterOff, S.tree.meta && S.tree.meta.cats, S.sel, S.vsel, S.cv, S.tree.hands && S.tree.hands[S.me], S.tree.priv, S.tree.mine && S.tree.mine[S.me]]);
+    var sst = MODE === "dis" && st.phase === "dd" ? Object.assign({}, st, { off: null, order: null }) : st;
+    var sig = JSON.stringify([sst, S.dj, Object.keys(pl).map(function (i) { return [i, pl[i].name]; }), S.answered, S.net, masterOff, S.tree.meta && S.tree.meta.cats, S.sel, S.vsel, S.cv, S.tree.hands && S.tree.hands[S.me], S.tree.priv, S.tree.mine && S.tree.mine[S.me]]);
     if (sig === S.sig) return; S.sig = sig;
-    var body = /^c[prvs]$|^cend$/.test(st.phase) ? cahView(st) : st.phase === "bq" || st.phase === "br" ? bsGameView(st) : st.phase === "bend" ? bsEndView(st) : st.phase === "question" || st.phase === "reveal" ? gameView(st) : st.phase === "end" ? endView(st) : lobbyView();
+    var body = /^d[pdr]$|^dend$/.test(st.phase) ? disView(st) : /^c[prvs]$|^cend$/.test(st.phase) ? cahView(st) : st.phase === "bq" || st.phase === "br" ? bsGameView(st) : st.phase === "bend" ? bsEndView(st) : st.phase === "question" || st.phase === "reveal" ? gameView(st) : st.phase === "end" ? endView(st) : lobbyView();
     S.view = st.phase === "lobby" ? "lobby" : "game";
     shell((masterOff ? '<div class="tv-banner warn">Il master sembra offline: aspetta qualche istante.</div>' : "") + body);
     bind(st);
@@ -879,15 +1109,16 @@
     var g = function (id, fn) { var e = $(id); if (e) e.addEventListener("click", fn); };
     g("#tv-start", startGame); g("#tv-again", newGame); g("#tv-close", closeRoom);
     g("#tv-stop", function () { if (confirm("Terminare la partita e chiudere la stanza?")) closeRoom(); });
-    g("#tv-skip", function () { if (S.m.cah) cahNext(); else if (S.m.bs) askBS(); else next(S.m.cur && S.m.cur.ok); });
-    g("#tv-skipq", function () { if (S.m.cah) cahForce(); else if (S.m.bs) bsReveal(); else resolve(-1); });
+    g("#tv-skip", function () { if (S.m.dis) disNext(); else if (S.m.cah) cahNext(); else if (S.m.bs) askBS(); else next(S.m.cur && S.m.cur.ok); });
+    g("#tv-skipq", function () { if (S.m.dis) disForce(); else if (S.m.cah) cahForce(); else if (S.m.bs) bsReveal(); else resolve(-1); });
+    if (MODE === "dis") disMount(st);
     $$(".cah-hand [data-c]").forEach(function (b) { b.addEventListener("click", function () { S.sel = +b.dataset.c; S.sig = ""; render(); }); });
     $$(".cah-ans[data-v]").forEach(function (b) { b.addEventListener("click", function () { S.vsel = +b.dataset.v; S.sig = ""; render(); }); });
     g("#cah-send", function () { if (S.sel == null) return; cahSend({ t: "pick", card: S.sel }, st); });
     g("#cah-show", function () { cahSend({ t: "show" }, st); });
     g("#cah-vote", function () { if (S.vsel == null) return; S.cv = st.qid; cahSend({ t: "vote", idx: S.vsel }, st); });
     g("#tv-copy", function () { var l = location.origin + location.pathname + "?c=" + S.code; (navigator.clipboard ? navigator.clipboard.writeText(l) : Promise.reject()).then(function () { $("#tv-copy").textContent = "Link copiato"; }).catch(function () { prompt("Copia questo link:", l); }); });
-    g("#tv-share", function () { navigator.share({ title: MODE === "bs" ? "Baby shower" : MODE === "bd" ? "Festa di compleanno" : MODE === "cah" ? "Senza vergogna" : "Sfida a spicchi", text: "Gioca con me! Codice: " + S.code, url: location.origin + location.pathname + "?c=" + S.code }).catch(function () {}); });
+    g("#tv-share", function () { navigator.share({ title: MODE === "bs" ? "Baby shower" : MODE === "bd" ? "Festa di compleanno" : MODE === "cah" ? "Senza vergogna" : MODE === "dis" ? "Disegna e indovina" : "Sfida a spicchi", text: "Gioca con me! Codice: " + S.code, url: location.origin + location.pathname + "?c=" + S.code }).catch(function () {}); });
     $$(".tv-opt").forEach(function (b) {
       b.addEventListener("click", function () {
         if (st.phase === "bq") {

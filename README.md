@@ -55,3 +55,8 @@ Gioco di carte per adulti (`TAVOLO_MODE = "cah"`), carte originali in `senzaverg
 - Le risposte restano nascoste agli altri finché il lettore non le ha lette tutte e preme «Mostra a tutti»; poi tutti (lettore compreso) votano, ma non la propria carta. Un punto alla carta più votata (pari merito: un punto a testa).
 - Serve il consenso «ho almeno 18 anni» del master all'avvio e di ogni giocatore all'ingresso. Servono almeno 3 giocatori.
 - Le carte in mano sono in `hands/<id>` nel database: il gioco è pensato per amici in presenza, non è a prova di barare.
+
+## Disegna e indovina (pagina disegna.html)
+Gioco in stile Pictionary (`TAVOLO_MODE = "dis"`), parole in `disegna-data.js`: 4 fasce (Facile 1 punto, Media 2, Difficile 3, Quasi impossibile 5), 76/76/70/70 parole.
+A turno uno disegna e sceglie tra 4 parole (una per fascia, può cambiarle una volta); gli altri vedono il disegno in diretta e indovinano a voce; chi disegna indica il vincitore. Il vincitore prende i punti della fascia, chi disegna metà (arrotondata per eccesso). Il master sceglie i giri, il tempo (60/90/120 s o nessuno) e può aggiungere parole sue (fascia Media).
+Il disegno viaggia come tratti di testo in `/draw/s/sN` (coordinate 0-1000 × 0-750), scritti solo da chi disegna e cancellati a inizio turno.
