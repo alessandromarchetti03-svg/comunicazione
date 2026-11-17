@@ -66,3 +66,9 @@ Il disegno viaggia come tratti di testo in `/draw/s/sN` (coordinate 0-1000 × 0-
 
 ## Parole in comune (pagina parole-in-comune.html)
 `TAVOLO_MODE = "par"`, 382 parole in `paroleincomune-data.js`. Griglia 5×5, squadre Rossa e Blu sorteggiate (almeno 4 giocatori), un capitano per squadra che vede i colori (in `/priv`) e dà un indizio di una parola + un numero; i compagni toccano le parole (selezione + conferma), tentativi = numero + 1. Vince chi trova tutte le sue parole; la parola nera fa perdere. L'indizio non può essere una parola ancora sul tavolo. Il master può passare il turno.
+
+## HelpDesk (portfolio, pagina helpdesk.html)
+Caso di studio del software gestionale, con riquadro in `altri-progetti.html` (sopra Melodie Capogiro, che resta ultima). Pagina autonoma con i suoi stili, caratteri locali (fonts.css) e nessuna richiesta esterna; immagini `helpdesk-*.webp` e `helpdesk-icona.png` nella cartella principale.
+
+## Siti web (riquadro in altri-progetti.html)
+Riquadro con i due siti sviluppati: ciemmegiardini.it e emme2000impiantielettrici.it (link esterni). Sta sopra Melodie Capogiro, che resta ultima.

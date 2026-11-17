@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HelpDesk, il gestionale per l’assistenza tecnica — Alessandro Marchetti</title>
+<meta name="description" content="HelpDesk: gestionale per assistenza telefonica e interventi tecnici sul posto, progettato e sviluppato da Alessandro Marchetti.">
+<link rel="stylesheet" href="fonts.css?v=20261142">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://www.alessandromarchetti.net/helpdesk.html">
+<style>
+/* Layout: case study a colonna unica; schermate in cornice "finestra" che sporgono dalla colonna del testo; sezioni alternate testo/schermata */
+:root {
+  --bg: #F6F8FB;
+  --surface: #FFFFFF;
+  --fg: #0F1B2D;
+  --muted: #55657A;
+  --line: #DDE4EE;
+  --accent: #1D5BD8;
+  --accent-2: #0EA5E9;
+  --accent-soft: #E3EDFF;
+  --green: #0B8043;
+  --frame: #0F1B2D;
+  --shadow: 0 1px 2px rgba(15, 27, 45, .06), 0 18px 40px -18px rgba(15, 27, 45, .28);
+  --f-display: "Inter", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --f-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1220; --surface: #121B2C; --fg: #E6ECF5; --muted: #93A3B8; --line: #22304A;
+    --accent: #6EA2FF; --accent-2: #38BDF8; --accent-soft: #16264A; --green: #34D399; --frame: #05090F;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 18px 40px -18px rgba(0, 0, 0, .7); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1220; --surface: #121B2C; --fg: #E6ECF5; --muted: #93A3B8; --line: #22304A;
+  --accent: #6EA2FF; --accent-2: #38BDF8; --accent-soft: #16264A; --green: #34D399; --frame: #05090F;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 18px 40px -18px rgba(0, 0, 0, .7); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 17px/1.65 var(--f-body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: -.02em; }
+p { margin: 0; }
+a { color: var(--accent); }
+.eyebrow { font: 500 12.5px/1 var(--f-mono); text-transform: uppercase; letter-spacing: .12em; color: var(--accent); }
+
+/* ---- hero ---- */
+.hero { padding-block: 56px 32px; display: grid; gap: 28px; }
+.hero-top { display: flex; align-items: center; gap: 16px; }
+.hero-top img { width: 64px; height: 64px; border-radius: 16px; box-shadow: var(--shadow); }
+.hero h1 { font-size: clamp(44px, 7vw, 84px); font-weight: 800; line-height: .95; }
+.hero .lead { font-size: clamp(19px, 2.2vw, 23px); line-height: 1.5; max-width: 34ch; color: var(--fg); }
+.hero .lead em { font-style: normal; color: var(--accent); }
+.meta { display: flex; flex-wrap: wrap; gap: 10px 28px; font: 400 14px/1.4 var(--f-mono); color: var(--muted); }
+.meta b { color: var(--fg); font-weight: 500; }
+
+.finestra { background: var(--frame); border-radius: 14px; padding: 30px 6px 6px; position: relative; box-shadow: var(--shadow); max-width: 100%; }
+.finestra::before { content: ""; position: absolute; top: 11px; left: 14px; width: 9px; height: 9px; border-radius: 50%; background: #FF5F57; box-shadow: 15px 0 0 #FEBC2E, 30px 0 0 #28C840; }
+.finestra img { display: block; width: 100%; height: auto; border-radius: 8px; aspect-ratio: 16 / 10; object-fit: cover; object-position: top left; cursor: zoom-in; }
+.finestra button { all: unset; display: block; cursor: zoom-in; border-radius: 8px; }
+.finestra button:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 3px; }
+.hero .finestra { margin-top: 8px; }
+
+/* ---- numeri ---- */
+.numeri { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-block: 1px solid var(--line); margin-block: 40px 8px; }
+.numeri div { padding: 22px 18px; display: flex; flex-direction: column; gap: 4px; }
+.numeri div + div { border-left: 1px solid var(--line); }
+.numeri b { font: 700 clamp(28px, 3.6vw, 40px)/1 var(--f-display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.numeri span { font-size: 14px; color: var(--muted); }
+
+/* ---- testo ---- */
+.blocco { padding-block: 64px 8px; display: grid; gap: 18px; }
+.blocco > h2 { font-size: clamp(30px, 4vw, 44px); font-weight: 700; }
+.blocco > p { max-width: 64ch; color: var(--muted); }
+.blocco > p strong { color: var(--fg); font-weight: 600; }
+
+/* ---- funzioni con schermata ---- */
+.funz { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 44px; align-items: center; padding-block: 44px; border-top: 1px solid var(--line); }
+.funz.inv { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.funz.inv .testo { order: 2; }
+.funz .testo { display: grid; gap: 14px; min-width: 0; }
+.funz h3 { font-size: clamp(24px, 2.6vw, 30px); font-weight: 700; }
+.funz p { color: var(--muted); }
+.funz ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.funz li { position: relative; padding-left: 22px; font-size: 15.5px; line-height: 1.5; }
+.funz li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 9px; height: 9px; border-radius: 2px; background: var(--accent); transform: rotate(45deg); }
+.tag { justify-self: start; font: 500 12px/1 var(--f-mono); padding: 6px 9px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.tag.verde { background: color-mix(in srgb, var(--green) 14%, transparent); color: var(--green); }
+
+/* ---- galleria ---- */
+.galleria { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; padding-block: 8px 24px; }
+.galleria figure { margin: 0; display: grid; gap: 10px; }
+.galleria figcaption { font-size: 14.5px; color: var(--muted); }
+.galleria figcaption b { color: var(--fg); font-weight: 600; }
+.galleria .finestra { padding-top: 22px; border-radius: 10px; }
+.galleria .finestra::before { top: 8px; left: 10px; width: 7px; height: 7px; box-shadow: 11px 0 0 #FEBC2E, 22px 0 0 #28C840; }
+
+/* ---- tecnica ---- */
+.stack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); }
+.stack div { padding: 20px 22px; display: grid; gap: 6px; border-bottom: 1px solid var(--line); min-width: 0; }
+.stack div:nth-child(odd) { border-right: 1px solid var(--line); }
+.stack div:nth-last-child(-n+2) { border-bottom: 0; }
+.stack dt { font: 500 13px/1.3 var(--f-mono); color: var(--accent); }
+.stack dd { margin: 0; font-size: 15.5px; line-height: 1.55; }
+.scelte { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.scelte div { display: grid; gap: 8px; align-content: start; }
+.scelte h3 { font-size: 19px; font-weight: 700; }
+.scelte p { font-size: 15.5px; color: var(--muted); }
+
+/* ---- versioni ---- */
+.versioni { display: grid; gap: 0; border-left: 2px solid var(--line); margin-left: 6px; }
+.versioni li { list-style: none; position: relative; padding: 0 0 22px 24px; display: grid; gap: 4px; }
+.versioni li::before { content: ""; position: absolute; left: -7px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent); }
+.versioni li:last-child { padding-bottom: 0; }
+.versioni b { font: 500 14px/1.4 var(--f-mono); }
+.versioni span { color: var(--muted); font-size: 15.5px; max-width: 70ch; }
+ol.versioni { margin: 0; padding: 0; }
+
+footer { margin-top: 72px; padding-block: 28px 44px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 14px; }
+
+/* ---- lightbox ---- */
+dialog { border: 0; padding: 0; background: transparent; max-width: min(1600px, 96vw); width: 96vw; }
+dialog::backdrop { background: rgba(5, 9, 15, .82); }
+dialog img { width: 100%; height: auto; display: block; border-radius: 10px; }
+dialog form { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; color: #E6ECF5; font-size: 15px; }
+dialog button { font: 600 14px/1 var(--f-body); background: #E6ECF5; color: #0F1B2D; border: 0; border-radius: 8px; padding: 10px 14px; cursor: pointer; }
+dialog button:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 2px; }
+
+@media (max-width: 900px) {
+  .funz, .funz.inv { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .funz.inv .testo { order: 0; }
+  .galleria { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .scelte { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .numeri { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .numeri div:nth-child(3) { border-left: 0; }
+  .numeri div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .galleria { grid-template-columns: minmax(0, 1fr); }
+  .stack { grid-template-columns: minmax(0, 1fr); }
+  .stack div:nth-child(odd) { border-right: 0; }
+  .stack div:nth-last-child(2) { border-bottom: 1px solid var(--line); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .finestra img { transition: transform .25s ease; }
+  .finestra button:hover img { transform: scale(1.01); }
+}
+.top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; padding-block: 18px; font: 500 14px/1.4 var(--f-body); border-bottom: 1px solid var(--line); }
+.top a { text-decoration: none; font-weight: 600; }
+.top a:hover { text-decoration: underline; }
+.hero h1 { font-weight: 800; }
+</style>
+</head>
+<body>
+
+
+<main>
+  <div class="wrap">
+    <nav class="top" aria-label="Torna al sito"><a href="altri-progetti.html">← Torna ai progetti</a><a href="index.html">Alessandro Marchetti · alessandromarchetti.net</a></nav>
+    <header class="hero">
+      <div class="hero-top"><img src="helpdesk-icona.png" alt="Icona di HelpDesk" width="64" height="64"><span class="eyebrow">Caso di studio · software gestionale</span></div>
+      <h1>HelpDesk</h1>
+      <p class="lead">Un unico programma per il reparto assistenza: <em>chiamate dei clienti</em>, <em>interventi sul posto</em> e lavoro di squadra, in rete tra il server e le postazioni dei tecnici.</p>
+      <div class="meta"><span>Ruolo <b>analisi, progettazione e sviluppo</b></span><span>Anno <b>2026</b></span><span>Piattaforma <b>Windows, server + postazioni</b></span><span>Autore <b>Alessandro Marchetti</b></span></div>
+      <div class="finestra"><button type="button" data-zoom="helpdesk-02-calendario.webp" data-cap="Calendario degli interventi, vista settimana"><img src="helpdesk-02-calendario.webp" alt="Calendario settimanale degli interventi con eventi colorati per tecnico" width="2880" height="1800" fetchpriority="high"></button></div>
+    </header>
+
+    <section class="numeri" aria-label="Il progetto in numeri">
+      <div><b>23.000+</b><span>righe di codice JavaScript</span></div>
+      <div><b>205</b><span>funzioni del server (API)</span></div>
+      <div><b>32</b><span>moduli del server</span></div>
+      <div><b>2.2</b><span>versione attuale, in uso ogni giorno</span></div>
+    </section>
+
+    <section class="blocco" aria-labelledby="t-problema">
+      <span class="eyebrow">Il problema</span>
+      <h2 id="t-problema">Chiamate, interventi e richieste in un posto solo</h2>
+      <p>Un reparto assistenza di impianti di sicurezza e videosorveglianza deve seguire le chiamate dei clienti, organizzare gli interventi dei tecnici sul posto e rispondere alle richieste che arrivano dal sito. Serviva uno strumento unico, con la storia di ogni cliente, i tempi al telefono misurati e gli interventi visibili a tutti, anche sul telefono.</p>
+      <p><strong>L'obiettivo:</strong> un programma installabile sui PC dell'ufficio, che funzioni in rete locale anche senza internet, tenga i dati dei clienti in casa e si adatti al modo di lavorare dei tecnici, non il contrario.</p>
+    </section>
+
+    <section class="blocco" aria-labelledby="t-soluzione" style="padding-bottom:0">
+      <span class="eyebrow">La soluzione</span>
+      <h2 id="t-soluzione">Due aree di lavoro, un'unica anagrafica</h2>
+      <p>Il programma è diviso in <strong>Assistenze Interne</strong> (supporto telefonico) e <strong>Assistenze Esterne</strong> (interventi sul posto), con sezioni comuni per anagrafica clienti, chat, note, liste di cose da fare e agenda personale. Ogni account vede solo le sezioni che l'amministratore gli concede, in lettura o in modifica.</p>
+    </section>
+
+    <article class="funz" aria-labelledby="f1">
+      <div class="testo">
+        <span class="tag">Assistenze Interne</span>
+        <h3 id="f1">Ogni chiamata diventa un ticket</h3>
+        <p>Il tecnico registra la chiamata mentre parla con il cliente: l'azienda si completa da sola, compare lo storico del cliente e il programma propone le procedure già scritte per quel problema.</p>
+        <ul>
+          <li>Ticket con stati, promemoria di richiamata e calendario degli impegni</li>
+          <li>Procedure di soluzione con storico delle versioni e invio al cliente</li>
+          <li>Ricerca nel testo di oltre cento manuali PDF, anche senza internet</li>
+          <li>Statistiche, report mensile e annuale in PDF inviati via email</li>
+        </ul>
+      </div>
+      <div class="finestra"><button type="button" data-zoom="helpdesk-01-dashboard.webp" data-cap="Dashboard con ticket e promemoria"><img src="helpdesk-01-dashboard.webp" alt="Dashboard con ticket aperti, in sospeso e promemoria di richiamata" width="2880" height="1800" loading="lazy"></button></div>
+    </article>
+
+    <article class="funz inv" aria-labelledby="f2">
+      <div class="testo">
+        <span class="tag verde">Assistenze Esterne</span>
+        <h3 id="f2">Interventi sincronizzati con Google Calendar</h3>
+        <p>Gli interventi vanno su Google Calendar e tornano indietro: se un tecnico sposta un appuntamento dal telefono, il programma si aggiorna e avvisa via email chi è coinvolto. Il titolo è sempre "TECNICO – Cliente" e il colore è quello del tecnico, verde se sono più di uno.</p>
+        <ul>
+          <li>Sincronizzazione nei due sensi senza doppioni, anche quando un intervento diventa un impegno e viceversa</li>
+          <li>Chiusura solo con il report in PDF, più lista materiale e altri documenti</li>
+          <li>Richieste dal sito lette da un Foglio Google, con avviso sulle nuove</li>
+          <li>Report che arrivano per email riconosciuti e assegnati all'intervento</li>
+        </ul>
+      </div>
+      <div class="finestra"><button type="button" data-zoom="helpdesk-03-intervento.webp" data-cap="Scheda di un intervento"><img src="helpdesk-03-intervento.webp" alt="Scheda di un intervento con cliente, indirizzo, tecnici e stato" width="2880" height="1800" loading="lazy"></button></div>
+    </article>
+
+    <article class="funz" aria-labelledby="f3">
+      <div class="testo">
+        <span class="tag">Per ogni tecnico</span>
+        <h3 id="f3">Agenda personale con esportazione Excel</h3>
+        <p>Ogni utente registra le ore della giornata divise per categoria e tiene un diario delle cose fatte. I dati sono strettamente personali: nemmeno l'amministratore li vede.</p>
+        <ul>
+          <li>Calendario del mese con le ore e la ripartizione per categoria</li>
+          <li>Inserimento rapido: "7,5", "2:30" o i pulsanti a 1, 2, 4 e 8 ore</li>
+          <li>Excel del mese con nome, giorni, categorie e totali, generato senza librerie</li>
+        </ul>
+      </div>
+      <div class="finestra"><button type="button" data-zoom="helpdesk-09-agenda.webp" data-cap="Agenda personale"><img src="helpdesk-09-agenda.webp" alt="Agenda personale con calendario del mese, ore per categoria e diario della giornata" width="2880" height="1800" loading="lazy"></button></div>
+    </article>
+
+    <article class="funz inv" aria-labelledby="f4">
+      <div class="testo">
+        <span class="tag">Lavoro di squadra</span>
+        <h3 id="f4">Chat, note e liste condivise</h3>
+        <p>Dentro il programma c'è tutto quello che serve per coordinarsi senza passare da altre app: chat di gruppo e a due con immagini e PDF, note con promemoria all'ora giusta, liste di cose da fare personali o condivise.</p>
+        <ul>
+          <li>Chi è collegato, messaggi letti e notifiche di Windows</li>
+          <li>Promemoria con notifica, da rimandare o segnare come fatti</li>
+          <li>Foto profilo, aggiornamenti delle postazioni con un clic</li>
+        </ul>
+      </div>
+      <div class="finestra"><button type="button" data-zoom="helpdesk-07-chat.webp" data-cap="Chat interna"><img src="helpdesk-07-chat.webp" alt="Pannello della chat interna sopra la dashboard degli interventi" width="2880" height="1800" loading="lazy"></button></div>
+    </article>
+
+    <section class="blocco" aria-labelledby="t-galleria" style="padding-bottom:0">
+      <span class="eyebrow">Altre schermate</span>
+      <h2 id="t-galleria">Dentro il programma</h2>
+    </section>
+    <div class="galleria">
+      <figure><div class="finestra"><button type="button" data-zoom="helpdesk-06-dashboard-interventi.webp" data-cap="Dashboard degli interventi"><img src="helpdesk-06-dashboard-interventi.webp" alt="Dashboard degli interventi con contatori e settimana" width="2880" height="1800" loading="lazy"></button></div><figcaption><b>Dashboard interventi.</b> Contatori, settimana e prossimi appuntamenti.</figcaption></figure>
+      <figure><div class="finestra"><button type="button" data-zoom="helpdesk-04-interventi.webp" data-cap="Elenco degli interventi"><img src="helpdesk-04-interventi.webp" alt="Elenco degli interventi programmati con tecnici" width="2880" height="1800" loading="lazy"></button></div><figcaption><b>Elenco interventi.</b> Stati, ricerca e filtri per tecnico e periodo.</figcaption></figure>
+      <figure><div class="finestra"><button type="button" data-zoom="helpdesk-12-nuova.webp" data-cap="Registrazione di una chiamata"><img src="helpdesk-12-nuova.webp" alt="Modulo per registrare una nuova assistenza telefonica" width="2880" height="1800" loading="lazy"></button></div><figcaption><b>Nuova assistenza.</b> La chiamata registrata mentre si parla col cliente.</figcaption></figure>
+      <figure><div class="finestra"><button type="button" data-zoom="helpdesk-11-statistiche.webp" data-cap="Statistiche"><img src="helpdesk-11-statistiche.webp" alt="Statistiche delle assistenze con grafici per azienda e categoria" width="2880" height="1800" loading="lazy"></button></div><figcaption><b>Statistiche.</b> Tempi al telefono, aziende e categorie.</figcaption></figure>
+      <figure><div class="finestra"><button type="button" data-zoom="helpdesk-08-todo.webp" data-cap="Liste di cose da fare"><img src="helpdesk-08-todo.webp" alt="Lista di cose da fare condivisa con voci da spuntare" width="2880" height="1800" loading="lazy"></button></div><figcaption><b>To do.</b> Liste personali o condivise, con scadenze.</figcaption></figure>
+      <figure><div class="finestra"><button type="button" data-zoom="helpdesk-10-note.webp" data-cap="Note"><img src="helpdesk-10-note.webp" alt="Note colorate con promemoria" width="2880" height="1800" loading="lazy"></button></div><figcaption><b>Note.</b> Fissate in alto, colori e promemoria.</figcaption></figure>
+    </div>
+
+    <section class="blocco" aria-labelledby="t-tecnica">
+      <span class="eyebrow">Com'è fatto</span>
+      <h2 id="t-tecnica">Tecnologie</h2>
+      <dl class="stack">
+        <div><dt>Server</dt><dd>Node.js senza framework: router, autenticazione a sessione e permessi per sezione scritti da zero.</dd></div>
+        <div><dt>Database</dt><dd>SQLite (sql.js) in un unico file, con migrazioni automatiche a ogni aggiornamento e backup programmati.</dd></div>
+        <div><dt>Interfaccia</dt><dd>Applicazione a pagina singola in JavaScript, HTML e CSS puri, con tema chiaro e scuro e accessibilità da tastiera.</dd></div>
+        <div><dt>Desktop</dt><dd>Electron, installer NSIS e server come servizio di Windows; le postazioni trovano il server da sole in rete.</dd></div>
+        <div><dt>Integrazioni</dt><dd>Google Calendar (account di servizio), Fogli Google tramite Apps Script, Gmail in uscita (SMTP) e in entrata (IMAP).</dd></div>
+        <div><dt>Documenti</dt><dd>Report PDF, file Excel generati senza librerie, lettura del testo dei PDF con pdf.js in un thread separato.</dd></div>
+      </dl>
+    </section>
+
+    <section class="blocco" aria-labelledby="t-scelte">
+      <span class="eyebrow">Scelte di progetto</span>
+      <h2 id="t-scelte">Cosa c'è sotto</h2>
+      <div class="scelte">
+        <div><h3>Client IMAP scritto da zero</h3><p>Per leggere i report in arrivo serviva solo una parte del protocollo: connessione TLS, ricerca dei nuovi messaggi e un parser MIME per allegati e nomi codificati, in sola lettura sulla casella.</p></div>
+        <div><h3>Motore di ricerca nei manuali</h3><p>Indice per pagina con punteggio BM25, radici delle parole italiane, sinonimi del settore e tolleranza agli errori di battitura. Funziona offline, direttamente sul server.</p></div>
+        <div><h3>Aggiornamenti senza fatica</h3><p>Si aggiorna solo il server: le postazioni ricevono l'avviso, scaricano il pacchetto dalla rete locale, ne verificano l'integrità e si reinstallano da sole.</p></div>
+      </div>
+    </section>
+
+    <section class="blocco" aria-labelledby="t-versioni">
+      <span class="eyebrow">Evoluzione</span>
+      <h2 id="t-versioni">Dalla prima versione a oggi</h2>
+      <ol class="versioni">
+        <li><b>1.0</b><span>Registrazione delle chiamate, storico cliente, statistiche, report mensile via email, backup, server e postazioni in rete.</span></li>
+        <li><b>1.6 – 1.9</b><span>Server come servizio di Windows, anagrafica clienti con importazione da Excel e unione dei doppioni.</span></li>
+        <li><b>1.10 – 1.18</b><span>Dashboard con ticket e promemoria, calendario, procedure per brand, archivio, report annuale, sezione manuali.</span></li>
+        <li><b>2.0</b><span>Nuova area per gli interventi sul posto con Google Calendar, permessi per account, richieste dal sito, chat e note.</span></li>
+        <li><b>2.1 – 2.2</b><span>Ricerca offline nei manuali, aggiornamento automatico delle postazioni, to do, agenda personale, promemoria e foto profilo.</span></li>
+      </ol>
+    </section>
+  </div>
+</main>
+<footer class="wrap"><span>HelpDesk · progettato e sviluppato da Alessandro Marchetti</span><span>Schermate con dati di esempio · <a href="privacy.html">Privacy</a></span></footer>
+
+<dialog id="lb" aria-label="Schermata ingrandita">
+  <form method="dialog"><span id="lb-cap"></span><button type="submit" id="lb-x">Chiudi</button></form>
+  <img id="lb-img" src="" alt="">
+</dialog>
+<script>
+(function () {
+  var lb = document.getElementById('lb');
+  var img = document.getElementById('lb-img');
+  var cap = document.getElementById('lb-cap');
+  var ultimo = null;
+  document.querySelectorAll('[data-zoom]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      ultimo = b;
+      img.src = b.dataset.zoom;
+      img.alt = b.querySelector('img').alt;
+      cap.textContent = b.dataset.cap || '';
+      if (lb.showModal) lb.showModal();
+    });
+  });
+  lb.addEventListener('click', function (e) { if (e.target === lb) lb.close(); });
+  lb.addEventListener('close', function () { if (ultimo) ultimo.focus(); });
+})();
+</script>
+
+</body>
+</html>

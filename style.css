@@ -602,3 +602,21 @@ textarea.tv-in { resize: vertical; min-height: 84px; }
 .par-team span { color: var(--on-night-2); font-size: 13px; }
 .par-tr { --tc: #e03131; } .par-tb { --tc: #1c7ed6; }
 .tv-turnbar.par-tr b { color: #ff8f8f; } .tv-turnbar.par-tb b { color: #8fc4f5; }
+
+/* HelpDesk (portfolio) */
+.project.hd { margin-top: 28px; background: linear-gradient(135deg, #0F1B2D, #16264A); border: 1px solid #22304A; }
+.project.hd .project-tag { color: #6EA2FF; }
+.hd-tags { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.hd-tags li { font: 600 12px/1 var(--sans); letter-spacing: .04em; padding: 8px 14px; border-radius: 99px; background: rgba(110,162,255,.16); color: #b9d0ff; }
+.hd-art { justify-self: center; }
+.hd-art img { width: min(100%, 180px); height: auto; border-radius: 36px; box-shadow: 0 24px 60px -18px rgba(29,91,216,.6); }
+@media (max-width: 760px) { .hd-art { justify-self: start; } .hd-art img { width: 110px; } }
+
+/* Siti web */
+.project.web { margin-top: 28px; grid-template-columns: 1.5fr .5fr; }
+.web-list { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 18px; }
+.web-list li { padding: 20px 22px; border-radius: 16px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); display: grid; gap: 10px; justify-items: start; }
+.web-list h4 { margin: 0; font: 800 20px/1.2 var(--display); color: #fff; }
+.web-list p { font-size: 16px; }
+.web-art { justify-self: center; width: min(100%, 200px); }
+@media (max-width: 760px) { .project.web { grid-template-columns: 1fr; } .web-art { width: 120px; justify-self: start; order: -1; } }
