@@ -31,3 +31,20 @@ Le stesse 8 voci (Chi sono, Libri, Giochi, Progetti, Omaggio, Video, Blog, Conta
 - Pagina `tavolo.html` (collegata dalla scheda in «Altri progetti» e da «Giochi formativi») + `tavolo-data.js` (180 domande in 6 categorie), `tavolo-qr.js` (QR), `tavolo.js` (gioco), `tavolo-config.js` (indirizzo del database in tempo reale).
 - Finché `db` in `tavolo-config.js` è vuoto la pagina dice «non ancora attivo». Per attivarla serve il database (vedi la guida a parte).
 - Il database Firebase (indirizzo in `tavolo-config.js`) usa le regole del file `tavolo-firebase-rules.json`. La privacy è già aggiornata.
+
+## Baby shower (pagina baby-shower.html)
+Gioco separato, con scheda propria in «Progetti». Usa lo stesso motore di tavolo.js (la pagina imposta `window.TAVOLO_MODE = "bs"`). Modalità diversa dagli spicchi: tutti rispondono a ogni domanda, senza tempo; si va avanti quando hanno votato tutti (il master può «Passare avanti»). Dopo ogni voto si vedono le percentuali; a fine partita punteggi e vincitore (anche pari merito).
+Ogni partita pesca 7 domande per categoria. Il master scrive i nomi di mamma, papà e (facoltativo) bebè, sceglie le categorie e aggiunge domande sue.
+Categorie: «Su mamma» e «Su papà» (solo domande del master, minimo 3), «Aspettando il bebè» (3 domande automatiche con i nomi + le sue), «Gravidanza e nascita» (76 domande) e «Neonati e bebè» (71) in tavolo-data.js, `TAVOLO_BS`.
+I nomi delle categorie viaggiano in `meta/cn` così compaiono uguali su tutti i telefoni.
+
+## Festa di compleanno (pagina compleanno.html)
+Stesso motore del baby shower (`TAVOLO_MODE = "bd"`), dati in `compleanno-data.js` (`TAVOLO_BD`).
+- Il master imposta gli anni, le categorie e le domande sue; chi entra sceglie «Sono il festeggiato» (uno solo) o «Sono un invitato».
+- Domande «sul festeggiato»: risponde lui in segreto, la risposta giusta è la sua; gli invitati prendono un punto se indovinano. Il festeggiato non è in classifica.
+- Categorie: «Gli anni che compie» (98 domande legate all'età), «Esplicite 18+» (89, solo se il master conferma che sono tutti maggiorenni), «Quanto conosci il festeggiato» (75), «Da quando è nato» (circa 80 calcolate dall'anno di nascita), «Come si comporta» (70).
+- Formato delle stringhe nel file dati: «testo|opz1|opz2|opz3|opz4» = domanda sul festeggiato; prefisso «=» = con risposta giusta (la prima); prefisso «30-39>» = solo per quell'età. Segnaposto: {n} nome, {a} anni.
+- Ogni partita: 7 domande per categoria. Fino a 20 giocatori in tutti i giochi.
+
+## Menu
+Chi sono, Libri, Esercizi (esercizi.html), Giochi (giochi.html: Sfida a spicchi, Baby shower, Festa di compleanno), Progetti (altri-progetti.html), Omaggio, Video, Blog, Contatti.

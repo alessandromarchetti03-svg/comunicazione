@@ -282,7 +282,7 @@
         { type: "reflect", title: "Cosa non vuoi più", text: "Spesso si capisce cosa si vuole partendo da ciò che non si vuole più. Scrivi tre cose da lasciare andare.", ph: "Non voglio più …" }
       ],
       [
-        { type: "pick", title: "Dove vuoi lavorare oggi?", text: "Scegli l’area in cui senti più bisogno di cambiare. Ti consiglierò il gioco più adatto.", options: [
+        { type: "pick", title: "Dove vuoi lavorare oggi?", text: "Scegli l’area in cui senti più bisogno di cambiare. Ti consiglierò l’esercizio più adatto.", options: [
           { t: "Sono teso e stanco", go: "rilassarmi" }, { t: "Voglio una voce più sicura", go: "vocalizzare" },
           { t: "Mi blocco quando devo parlare", go: "parlare" }, { t: "Voglio mettere ordine nei soldi", go: "soldi" },
           { t: "Mi sento in un loop e annoiato", go: "noia" } ] }

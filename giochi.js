@@ -45,7 +45,7 @@
         '<p class="gcard-skill">' + esc(g.skill) + '</p>' +
         '<p>' + esc(g.blurb) + '</p>' +
         '<div class="gcard-foot"><span class="gcard-time">≈ 5 min</span>' +
-        '<button class="btn" type="button" data-play="' + g.id + '" aria-label="Gioca: ' + esc(g.title) + '">Gioca</button></div></article>';
+        '<button class="btn" type="button" data-play="' + g.id + '" aria-label="Inizia: ' + esc(g.title) + '">Inizia</button></div></article>';
     }).join("");
     box.addEventListener("click", function (e) {
       var b = e.target.closest("[data-play]"); if (b) start(b.getAttribute("data-play"), b);
@@ -58,8 +58,8 @@
     if (overlay) return;
     overlay = document.createElement("div");
     overlay.className = "gm"; overlay.hidden = true;
-    overlay.setAttribute("role", "dialog"); overlay.setAttribute("aria-modal", "true"); overlay.setAttribute("aria-label", "Gioco formativo");
-    overlay.innerHTML = '<div class="gm-box"><div class="gm-top"><span class="gm-title"></span><button type="button" class="gm-close" aria-label="Chiudi il gioco">✕</button></div><div class="gm-bar"><i></i></div><div class="gm-body" tabindex="-1"></div></div>';
+    overlay.setAttribute("role", "dialog"); overlay.setAttribute("aria-modal", "true"); overlay.setAttribute("aria-label", "Esercizio");
+    overlay.innerHTML = '<div class="gm-box"><div class="gm-top"><span class="gm-title"></span><button type="button" class="gm-close" aria-label="Chiudi l’esercizio">✕</button></div><div class="gm-bar"><i></i></div><div class="gm-body" tabindex="-1"></div></div>';
     document.body.appendChild(overlay);
     body = $(".gm-body", overlay);
     $(".gm-close", overlay).addEventListener("click", close);
@@ -200,12 +200,12 @@
     if (run.notes.length) parts += '<div class="gm-notes"><p class="gm-kicker">Il tuo impegno</p><ul>' + run.notes.map(function (n) { return '<li><strong>' + esc(n.t) + '.</strong> ' + esc(n.v) + '</li>'; }).join("") + '</ul></div>';
     var rec = run.go ? find(run.go) : null, url = bookUrl(g);
     if (rec) parts += '<p class="gm-res">Ti consiglio di provare ora: <strong>' + esc(rec.title) + '</strong>.</p>';
-    frame('<p class="gm-kicker">Gioco completato</p><h2>Ben fatto.</h2><p class="gm-lead">' + esc(g.takeaway) + '</p>' + parts +
+    frame('<p class="gm-kicker">Esercizio completato</p><h2>Ben fatto.</h2><p class="gm-lead">' + esc(g.takeaway) + '</p>' + parts +
       '<div class="gm-actions">' +
-      (rec ? '<button class="btn" type="button" data-a="rec">Gioca «' + esc(rec.title) + '»</button>' : '<button class="btn" type="button" data-a="again">Gioca ancora</button>') +
-      (rec ? '<button class="btn ghost" type="button" data-a="again">Rigioca questo</button>' : '') +
+      (rec ? '<button class="btn" type="button" data-a="rec">Fai «' + esc(rec.title) + '»</button>' : '<button class="btn" type="button" data-a="again">Fai un altro esercizio</button>') +
+      (rec ? '<button class="btn ghost" type="button" data-a="again">Rifai questo</button>' : '') +
       '<button class="btn ghost" type="button" data-a="x">Chiudi</button></div>' +
-      (url ? '<p class="gm-note">Vuoi andare più a fondo? Questo gioco nasce dal libro <a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(g.book) + '</a>.</p>' : ''));
+      (url ? '<p class="gm-note">Vuoi andare più a fondo? Questo esercizio nasce dal libro <a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(g.book) + '</a>.</p>' : ''));
     $('[data-a="again"]', body).addEventListener("click", function () { start(g.id, opener); });
     $('[data-a="x"]', body).addEventListener("click", close);
     if (rec) $('[data-a="rec"]', body).addEventListener("click", function () { start(rec.id, opener); });
